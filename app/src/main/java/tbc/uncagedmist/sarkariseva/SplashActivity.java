@@ -20,6 +20,7 @@ public class SplashActivity extends AppCompatActivity {
     String[] arrayName = {
             "Home",
             "Setting",
+            "About",
             "Privacy",
             "Exit"
     };
@@ -34,6 +35,7 @@ public class SplashActivity extends AppCompatActivity {
                 R.drawable.ic_baseline_menu_open_24,R.drawable.ic_baseline_close_24)
                 .addSubMenu(Color.parseColor("#258CFF"),R.drawable.ic_baseline_home_24)
                 .addSubMenu(Color.parseColor("#ffc107"),R.drawable.ic_baseline_settings_applications_24)
+                .addSubMenu(Color.parseColor("#76ff03"),R.drawable.ic_baseline_white_emoji_people_24)
                 .addSubMenu(Color.parseColor("#6d4c41"),R.drawable.ic_baseline_security_24)
                 .addSubMenu(Color.parseColor("#ff0000"),R.drawable.ic_baseline_exit_to_app_24)
                 .setOnMenuSelectedListener(new OnMenuSelectedListener() {
@@ -51,9 +53,12 @@ public class SplashActivity extends AppCompatActivity {
                                     startActivity(new Intent(SplashActivity.this,MainActivity.class));
                                 }
                                 else if (arrayName[index].equals(arrayName[1]))  {
-
+                                    startActivity(new Intent(SplashActivity.this,SettingActivity.class));
                                 }
                                 else if (arrayName[index].equals(arrayName[2]))  {
+                                    startActivity(new Intent(SplashActivity.this,AboutActivity.class));
+                                }
+                                else if (arrayName[index].equals(arrayName[3]))  {
                                     startActivity(new Intent(SplashActivity.this,PrivacyActivity.class));
                                 }
                                 else {

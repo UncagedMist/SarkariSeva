@@ -18,7 +18,7 @@
             layout="@layout/app_bar"/>
 
         <WebView
-            android:id="@+id/webView"
+            android:id="@+id/webResult"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"/>
