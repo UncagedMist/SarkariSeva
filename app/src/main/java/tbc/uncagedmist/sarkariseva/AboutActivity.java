@@ -21,7 +21,7 @@ public class AboutActivity extends AppCompatActivity {
         aboutPage.setCover(R.drawable.coverimg);
         aboutPage.setName("Kundan Kumar");
         aboutPage.setDescription("Android Developer | Android App, Game and Software Developer.");
-        aboutPage.setAppIcon(R.mipmap.ic_logo); //Pass your app icon image
+        aboutPage.setAppIcon(R.mipmap.ic_logo);
 
         aboutPage.setAppName(getString(R.string.app_name));
         try {
@@ -33,8 +33,11 @@ public class AboutActivity extends AppCompatActivity {
         aboutPage.setVersionNameAsAppSubTitle(version);
         aboutPage.setAppDescription("" +
                 "Sarkari Seva is an Android app Designed to Help People .\n\n" +
-                "This app Provides Information on All the latest Services offered by Central and State Government with beautiful ui. People can opt for any available government services and Get Benifited.It also offers to apply for available and keep the track of your Applied application.\n\n"+
-                "A fresh new take on Material layouts. It offers a beautiful ui and daily basis reminder notification to never miss to get any Government Updates.");
+                "This app Provides Information on All the latest Services offered by Central and State Government with beautiful ui. " +
+                "People can opt for any available government services and Get benefited." +
+                "It also offers to apply for available and keep the track of your Applied application.\n\n"+
+                "A fresh new take on Material layouts. " +
+                "It offers a beautiful ui and daily basis reminder notification to never miss to get any Government Updates.");
 
         aboutPage.addEmailLink("Kundan_kk52@outlook.com");     //Add your email id
         aboutPage.addFacebookLink("https://www.facebook.com/TechByteCare/");  //Add your facebook address url
