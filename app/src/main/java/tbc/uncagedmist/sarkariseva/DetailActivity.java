@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -28,6 +31,7 @@ import tbc.uncagedmist.sarkariseva.Service.IDetailsLoadListener;
 
 public class DetailActivity extends AppCompatActivity implements IDetailsLoadListener {
 
+    AdView detailBanner;
     RecyclerView recyclerDetail;
 
     CollectionReference refDetails;
@@ -42,15 +46,52 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
         setContentView(R.layout.activity_detail);
 
         recyclerDetail = findViewById(R.id.recycler_detail);
+        detailBanner = findViewById(R.id.detailBanner);
 
         AppBarLayout toolbar = findViewById(R.id.app_bar);
         txtTitle = toolbar.findViewById(R.id.tool_title);
 
         txtTitle.setText(Common.CurrentService.getName());
 
+        AdRequest adRequest = new AdRequest.Builder().build();
+        detailBanner.loadAd(adRequest);
+
         getDetails();
 
         iDetailsLoadListener = this;
+
+        detailBanner.setAdListener(new AdListener()   {
+            @Override
+            public void onAdLoaded() {
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
     }
 
     private void getDetails() {

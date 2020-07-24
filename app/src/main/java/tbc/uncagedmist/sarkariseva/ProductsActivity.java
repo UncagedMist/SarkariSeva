@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -29,6 +32,7 @@ import tbc.uncagedmist.sarkariseva.Service.IAllProductLoadListener;
 
 public class ProductsActivity extends AppCompatActivity implements IAllProductLoadListener {
 
+    AdView productBanner;
     RecyclerView recyclerService;
 
     CollectionReference refAllProducts;
@@ -41,15 +45,52 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
         setContentView(R.layout.activity_products);
 
         recyclerService = findViewById(R.id.recycler_service);
+        productBanner = findViewById(R.id.productBanner);
 
         AppBarLayout toolbar = findViewById(R.id.app_bar);
         TextView txtTitle = toolbar.findViewById(R.id.tool_title);
 
         txtTitle.setText(Common.CurrentProduct.getName());
 
+        AdRequest adRequest = new AdRequest.Builder().build();
+        productBanner.loadAd(adRequest);
+
         getAllProducts();
 
         iAllProductLoadListener = this;
+
+        productBanner.setAdListener(new AdListener()   {
+            @Override
+            public void onAdLoaded() {
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
     }
 
     private void getAllProducts() {

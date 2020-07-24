@@ -3,17 +3,16 @@ package tbc.uncagedmist.sarkariseva;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Build;
 import android.os.Bundle;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -37,6 +36,7 @@ import tbc.uncagedmist.sarkariseva.Service.PicassoImageLoadingService;
 
 public class MainActivity extends AppCompatActivity implements IProductLoadListener, IBannerLoadListener {
 
+    AdView mainBanner;
 
     Slider bannerSlider;
     RecyclerView recyclerView;
@@ -49,12 +49,6 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window window = getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-        }
         setContentView(R.layout.activity_main);
 
         refProducts = FirebaseFirestore.getInstance().collection("Sarkari");
@@ -62,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
 
         Slider.init(new PicassoImageLoadingService());
 
+        mainBanner = findViewById(R.id.mainBanner);
         bannerSlider = findViewById(R.id.banner_slider);
         recyclerView = findViewById(R.id.recyclerView);
 
@@ -69,12 +64,47 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
                 R.anim.layout_fall_down);
         recyclerView.setLayoutAnimation(controller);
 
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mainBanner.loadAd(adRequest);
+
         iProductLoadListener = this;
         iBannerLoadListener = this;
 
         loadBanners();
         loadProducts();
 
+        mainBanner.setAdListener(new AdListener()   {
+            @Override
+            public void onAdLoaded() {
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) {
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
     }
 
     private void loadBanners() {

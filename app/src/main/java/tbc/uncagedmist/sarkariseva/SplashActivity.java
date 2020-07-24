@@ -9,6 +9,7 @@ import android.os.Handler;
 
 import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialog;
 import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialogListener;
+import com.google.android.gms.ads.MobileAds;
 import com.hitomi.cmlibrary.CircleMenu;
 import com.hitomi.cmlibrary.OnMenuSelectedListener;
 
