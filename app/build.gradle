@@ -40,13 +40,15 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    implementation 'androidx.viewpager2:viewpager2:1.1.0-alpha01'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.google.android.gms:play-services-gcm:17.0.0'
     implementation 'com.google.android.gms:play-services-ads:19.3.0'
 
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'com.google.android.material:material:1.1.0'
 
-    implementation 'com.github.Hitomis:CircleMenu:v1.1.0'
     implementation 'com.bestsoft32.tayyab:tt-fancy-gif-dialog:1.0.2'
     implementation 'com.ss.bannerslider:bannerslider:2.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
@@ -55,5 +57,10 @@ dependencies {
 
     implementation 'com.onesignal:OneSignal:[3.15.0, 3.99.99]'
 
+    implementation 'com.ncorti:slidetoact:0.7.0'
     implementation 'com.github.Shashank02051997:FancyAboutPage-Android:2.6'
+}
+
+repositories {
+    google()
 }

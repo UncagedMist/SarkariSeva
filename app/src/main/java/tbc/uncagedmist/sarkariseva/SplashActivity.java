@@ -1,92 +1,101 @@
 package tbc.uncagedmist.sarkariseva;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.CompositePageTransformer;
+import androidx.viewpager2.widget.MarginPageTransformer;
+import androidx.viewpager2.widget.ViewPager2;
+
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.RelativeLayout;
 
-import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialog;
-import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialogListener;
-import com.google.android.gms.ads.MobileAds;
-import com.hitomi.cmlibrary.CircleMenu;
-import com.hitomi.cmlibrary.OnMenuSelectedListener;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
+import com.ncorti.slidetoact.SlideToActView;
 
-import tbc.uncagedmist.sarkariseva.Common.Common;
-import tbc.uncagedmist.sarkariseva.Model.Product;
+import tbc.uncagedmist.sarkariseva.Adapter.MyViewPagerAdapter;
 
 public class SplashActivity extends AppCompatActivity {
 
-    String[] arrayName = {
-            "Home",
-            "Setting",
-            "About",
-            "Privacy",
-            "Exit"
-    };
+    RelativeLayout parentView;
+    ViewPager2 viewPager2;
+    TabLayout tabLayout;
+    SlideToActView slideToActView;
+
+    Handler slideHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        final CircleMenu circleMenu = findViewById(R.id.circleMenu);
-        circleMenu.setMainMenu(Color.parseColor("#1a237e"),
-                R.drawable.ic_baseline_menu_open_24,R.drawable.ic_baseline_close_24)
-                .addSubMenu(Color.parseColor("#258CFF"),R.drawable.ic_baseline_home_24)
-                .addSubMenu(Color.parseColor("#ffc107"),R.drawable.ic_baseline_settings_applications_24)
-                .addSubMenu(Color.parseColor("#76ff03"),R.drawable.ic_baseline_white_emoji_people_24)
-                .addSubMenu(Color.parseColor("#6d4c41"),R.drawable.ic_baseline_security_24)
-                .addSubMenu(Color.parseColor("#ff0000"),R.drawable.ic_baseline_exit_to_app_24)
-                .setOnMenuSelectedListener(new OnMenuSelectedListener() {
-                    @Override
-                    public void onMenuSelected(final int index) {
+        parentView = findViewById(R.id.parentView);
+        viewPager2 = findViewById(R.id.viewPager);
+        tabLayout = findViewById(R.id.dotTabs);
+        slideToActView = findViewById(R.id.btnContinue);
 
-                        circleMenu.refreshDrawableState();
+        setup();
 
-                        Handler handler = new Handler();
+        slideToActView.setOnSlideCompleteListener(new SlideToActView.OnSlideCompleteListener() {
+            @Override
+            public void onSlideComplete(SlideToActView slideToActView) {
+                startActivity(new Intent(SplashActivity.this,MainActivity.class));
+            }
+        });
+    }
 
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (arrayName[index].equals(arrayName[0]))  {
-                                    startActivity(new Intent(SplashActivity.this,MainActivity.class));
-                                }
-                                else if (arrayName[index].equals(arrayName[1]))  {
-                                    startActivity(new Intent(SplashActivity.this,SettingActivity.class));
-                                }
-                                else if (arrayName[index].equals(arrayName[2]))  {
-                                    startActivity(new Intent(SplashActivity.this,AboutActivity.class));
-                                }
-                                else if (arrayName[index].equals(arrayName[3]))  {
-                                    startActivity(new Intent(SplashActivity.this,PrivacyActivity.class));
-                                }
-                                else {
-                                    new TTFancyGifDialog.Builder(SplashActivity.this)
-                                            .setTitle("Good-Bye")
-                                            .setMessage("Do You Want to Step Out?")
-                                            .setPositiveBtnText("Stay")
-                                            .setPositiveBtnBackground("#22b573")
-                                            .setNegativeBtnText("Exit")
-                                            .setNegativeBtnBackground("#c1272d")
-                                            .setGifResource(R.drawable.gif3)
-                                            .isCancellable(false)
-                                            .OnPositiveClicked(new TTFancyGifDialogListener() {
-                                                @Override
-                                                public void OnClick() {
-                                                }
-                                            })
-                                            .OnNegativeClicked(new TTFancyGifDialogListener() {
-                                                @Override
-                                                public void OnClick() {
-                                                    System.exit(0);
-                                                }
-                                            }).build();
-                                }
-                            }
-                        },1100);
-                    }
-                });
+    private void setup() {
+        viewPager2.setAdapter(new MyViewPagerAdapter(this));
+
+        viewPager2.setClipToPadding(false);
+        viewPager2.setClipChildren(false);
+        viewPager2.setOffscreenPageLimit(3);
+        viewPager2.getChildAt(0).setOverScrollMode(RecyclerView.OVER_SCROLL_NEVER);
+
+        new TabLayoutMediator(tabLayout, viewPager2, new TabLayoutMediator.TabConfigurationStrategy() {
+            @Override
+            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+
+            }
+        }).attach();
+
+        CompositePageTransformer compositePageTransformer = new CompositePageTransformer();
+        compositePageTransformer.addTransformer(new MarginPageTransformer(40));
+        compositePageTransformer.addTransformer(new ViewPager2.PageTransformer() {
+            @Override
+            public void transformPage(@NonNull View page, float position) {
+                float r = 1 - Math.abs(position);
+                page.setScaleY(0.85f + r + 0.15f);
+            }
+        });
+        viewPager2.setPageTransformer(compositePageTransformer);
+
+        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                slideHandler.removeCallbacks(sliderRunnable);
+
+                slideHandler.postDelayed(sliderRunnable,3000);
+            }
+        });
+    }
+
+    private Runnable sliderRunnable = new Runnable() {
+        @Override
+        public void run() {
+            viewPager2.setCurrentItem(viewPager2.getCurrentItem() + 1);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        slideToActView.resetSlider();
     }
 }

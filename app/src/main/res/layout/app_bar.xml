@@ -6,20 +6,20 @@
     android:id="@+id/app_bar"
     android:background="@drawable/gradient_toolbar">
 
-    <TextView
-        android:id="@+id/tool_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Sarkari Seva"
-        android:textSize="30sp"
-        android:layout_marginTop="25dp"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
-        android:gravity="center" />
+  <TextView
+      android:id="@+id/tool_title"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Sarkari Seva"
+      android:textSize="30sp"
+      android:layout_marginTop="25dp"
+      android:textColor="@android:color/white"
+      android:textStyle="bold"
+      android:gravity="center" />
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?actionBarSize" />
+  <androidx.appcompat.widget.Toolbar
+      android:id="@+id/toolbar"
+      android:layout_width="match_parent"
+      android:layout_height="?actionBarSize" />
 
 </com.google.android.material.appbar.AppBarLayout>

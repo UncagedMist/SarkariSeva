@@ -8,21 +8,21 @@
     android:background="@drawable/back"
     tools:context=".PrivacyActivity">
 
-    <LinearLayout
-        android:orientation="vertical"
+  <LinearLayout
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      tools:ignore="WebViewLayout">
+
+    <include
+        layout="@layout/app_bar"/>
+
+    <WebView
+        android:id="@+id/webPrivacy"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:ignore="WebViewLayout">
+        android:layout_margin="4dp"/>
 
-        <include
-            layout="@layout/app_bar"/>
-
-        <WebView
-            android:id="@+id/webPrivacy"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="4dp"/>
-
-    </LinearLayout>
+  </LinearLayout>
 
 </RelativeLayout>
