@@ -4,24 +4,24 @@ import com.google.firebase.firestore.Exclude;
 
 public class Service {
 
-  private String id,name, image;
+    private String id,name, image;
 
-  public Service() {
-  }
+    public Service() {
+    }
 
-  public String getId() {
-    return id;
-  }
+    public String getId() {
+        return id;
+    }
 
-  public void setId(String id) {
-    this.id = id;
-  }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public String getImage() {
-    return image;
-  }
+    public String getImage() {
+        return image;
+    }
 }
