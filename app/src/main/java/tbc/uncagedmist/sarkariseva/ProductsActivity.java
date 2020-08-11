@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +18,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -35,6 +38,7 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
     AdView productBanner;
     RecyclerView recyclerService;
 
+    FloatingActionButton productShare;
     CollectionReference refAllProducts;
 
     IAllProductLoadListener iAllProductLoadListener;
@@ -46,6 +50,7 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
 
         recyclerService = findViewById(R.id.recycler_service);
         productBanner = findViewById(R.id.productBanner);
+        productShare = findViewById(R.id.productShare);
 
         AppBarLayout toolbar = findViewById(R.id.app_bar);
         TextView txtTitle = toolbar.findViewById(R.id.tool_title);
@@ -56,6 +61,17 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
         productBanner.loadAd(adRequest);
 
         getAllProducts();
+
+        productShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                String message = "Never Miss an Sarkari Updates. Install Sarkari Seva and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkariseva";
+                intent.putExtra(Intent.EXTRA_TEXT, message);
+                startActivity(Intent.createChooser(intent, "Share Sarkari Seva Using"));
+            }
+        });
 
         iAllProductLoadListener = this;
 

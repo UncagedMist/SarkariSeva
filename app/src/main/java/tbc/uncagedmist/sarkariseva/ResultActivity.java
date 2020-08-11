@@ -1,8 +1,10 @@
 package tbc.uncagedmist.sarkariseva;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -15,6 +17,7 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import tbc.uncagedmist.sarkariseva.Common.Common;
 
@@ -23,6 +26,8 @@ public class ResultActivity extends AppCompatActivity {
     AdView resultBanner;
     WebView webView;
     ProgressDialog progressDialog;
+
+    FloatingActionButton resultShare;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +39,7 @@ public class ResultActivity extends AppCompatActivity {
 
         AppBarLayout toolbar = findViewById(R.id.app_bar);
         TextView txtTitle = toolbar.findViewById(R.id.tool_title);
+        resultShare = findViewById(R.id.resultShare);
 
         txtTitle.setText(Common.CurrentDetail.getName());
 
@@ -43,6 +49,17 @@ public class ResultActivity extends AppCompatActivity {
         webView.setWebViewClient(new MyWebViewClient());
 
         String url = Common.CurrentDetail.getWeb().trim();
+
+        resultShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                String message = "Never Miss an Sarkari Updates. Install Sarkari Seva and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkariseva";
+                intent.putExtra(Intent.EXTRA_TEXT, message);
+                startActivity(Intent.createChooser(intent, "Share Sarkari Seva Using"));
+            }
+        });
 
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setLoadWithOverviewMode(true);

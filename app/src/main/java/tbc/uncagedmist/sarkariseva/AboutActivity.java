@@ -39,8 +39,8 @@ public class AboutActivity extends AppCompatActivity {
               "A fresh new take on Material layouts. " +
               "It offers a beautiful ui and daily basis reminder notification to never miss to get any Government Updates.");
 
-      aboutPage.addEmailLink("Kundan_kk52@outlook.com");     //Add your email id
-      aboutPage.addFacebookLink("https://www.facebook.com/TechByteCare/");  //Add your facebook address url
+      aboutPage.addEmailLink("Kundan_kk52@outlook.com");
+      aboutPage.addFacebookLink("https://www.facebook.com/TechByteCare/");
       aboutPage.addTwitterLink("https://twitter.com/TechByteCare");
       aboutPage.addLinkedinLink("https://www.linkedin.com/in/kundan-kumar-a82472167/");
       aboutPage.addGitHubLink("https://github.com/UncagedMist");

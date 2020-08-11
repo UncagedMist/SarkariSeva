@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
 import android.widget.Toast;
@@ -16,6 +18,7 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
 
    Slider bannerSlider;
    RecyclerView recyclerView;
+   FloatingActionButton mainShare;
 
    CollectionReference refProducts,refBanner;
 
@@ -58,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
       mainBanner = findViewById(R.id.mainBanner);
       bannerSlider = findViewById(R.id.banner_slider);
       recyclerView = findViewById(R.id.recyclerView);
+      mainShare = findViewById(R.id.mainShare);
 
       LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(recyclerView.getContext(),
               R.anim.layout_fall_down);
@@ -65,6 +70,17 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
 
       AdRequest adRequest = new AdRequest.Builder().build();
       mainBanner.loadAd(adRequest);
+
+      mainShare.setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            String message = "Never Miss an Sarkari Updates. Install Sarkari Seva and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkariseva";
+            intent.putExtra(Intent.EXTRA_TEXT, message);
+            startActivity(Intent.createChooser(intent, "Share Sarkari Seva Using"));
+         }
+      });
 
       iProductLoadListener = this;
       iBannerLoadListener = this;

@@ -29,4 +29,13 @@
       ads:adSize="SMART_BANNER"
       ads:adUnitId="ca-app-pub-7920815986886474/6189787724"/>
 
+  <com.google.android.material.floatingactionbutton.FloatingActionButton
+      android:id="@+id/productShare"
+      android:layout_margin="16dp"
+      android:src="@drawable/ic_baseline_share_24"
+      android:layout_alignParentEnd="true"
+      android:layout_above="@id/productBanner"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"/>
+
 </RelativeLayout>
