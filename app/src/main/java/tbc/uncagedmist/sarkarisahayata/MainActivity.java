@@ -19,8 +19,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.annotations.Nullable;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
          public void onClick(View view) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
-            String message = "Never Miss an Sarkari Updates. Install Sarkari Sahayata and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkariseva";
+            String message = "Never Miss an Sarkari Updates. Install Sarkari Sahayata and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkarisahayata";
             intent.putExtra(Intent.EXTRA_TEXT, message);
             startActivity(Intent.createChooser(intent, "Share Sarkari Sahayata Using"));
          }
@@ -118,6 +121,21 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
          public void onAdClosed() {
             // Code to be executed when the user is about to return
             // to the app after tapping on an ad.
+         }
+      });
+   }
+
+   @Override
+   protected void onStart() {
+      super.onStart();
+      refProducts.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+         @Override
+         public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+            if (error != null)  {
+               return;
+            }
+
+            loadProducts();
          }
       });
    }
