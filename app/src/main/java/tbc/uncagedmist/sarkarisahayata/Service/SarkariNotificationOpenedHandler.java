@@ -30,13 +30,13 @@ public class SarkariNotificationOpenedHandler implements OneSignal.NotificationO
                 Intent intent = new Intent(MyApplicationClass.getContext(), MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
                 MyApplicationClass.getContext().startActivity(intent);
-            } else if (activityToBeOpened != null && activityToBeOpened.equals("SplashActivity")) {
+            } else if (activityToBeOpened != null && activityToBeOpened.equals("MainActivity")) {
                 Log.i("OneSignalExample", "customkey set with value: " + activityToBeOpened);
-                Intent intent = new Intent(MyApplicationClass.getContext(), SplashActivity.class);
+                Intent intent = new Intent(MyApplicationClass.getContext(), MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
                 MyApplicationClass.getContext().startActivity(intent);
             } else {
-                Intent intent = new Intent(MyApplicationClass.getContext(), SplashActivity.class);
+                Intent intent = new Intent(MyApplicationClass.getContext(), MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_NEW_TASK);
                 MyApplicationClass.getContext().startActivity(intent);
             }

@@ -26,7 +26,7 @@
         android:value="ca-app-pub-7920815986886474~5642992812"/>
 
     <!-- Disable opening of launcher Activity -->
-    <meta-data android:name="com.onesignal.NotificationOpened.DEFAULT" android:value="DISABLE" />
+    <meta-data android:name="com.onesignal.NotificationOpened.DEFAULT" android:value="ENABLE" />
 
     <!-- Disable Badges -->
     <!-- <meta-data android:name="com.onesignal.BadgeCount" android:value="DISABLE" /> -->

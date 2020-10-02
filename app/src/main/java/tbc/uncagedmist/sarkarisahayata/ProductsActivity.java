@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -30,6 +31,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ServiceAdapter;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
 import tbc.uncagedmist.sarkarisahayata.Model.Service;
@@ -45,10 +47,16 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
 
     IAllProductLoadListener iAllProductLoadListener;
 
+    AlertDialog alertDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_products);
+
+        alertDialog = new SpotsDialog(this);
+        alertDialog.setCancelable(false);
+        alertDialog.setCanceledOnTouchOutside(false);
 
         recyclerService = findViewById(R.id.recycler_service);
         productBanner = findViewById(R.id.productBanner);
@@ -127,6 +135,7 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
     }
 
     private void getAllProducts() {
+        alertDialog.show();
         refAllProducts = FirebaseFirestore.getInstance()
                 .collection("Sarkari")
                 .document(Common.CurrentProduct.getId())
@@ -146,6 +155,7 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
 
                             }
                             iAllProductLoadListener.onAllProductLoadSuccess(services);
+                            alertDialog.dismiss();
                         }
                     }
                 })

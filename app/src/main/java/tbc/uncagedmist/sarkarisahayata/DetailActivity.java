@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -30,6 +31,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.DetailAdapter;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
 import tbc.uncagedmist.sarkarisahayata.Model.Detail;
@@ -48,10 +50,16 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
 
     IDetailsLoadListener iDetailsLoadListener;
 
+    AlertDialog alertDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        alertDialog = new SpotsDialog(this);
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.setCancelable(false);
 
         recyclerDetail = findViewById(R.id.recycler_detail);
         detailBanner = findViewById(R.id.detailBanner);
@@ -130,6 +138,8 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
     }
 
     private void getDetails() {
+
+        alertDialog.show();
         refDetails = FirebaseFirestore.getInstance()
                 .collection("Sarkari")
                 .document(Common.CurrentProduct.getId())
@@ -149,6 +159,7 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
                                 details.add(detail);
                             }
                             iDetailsLoadListener.onDetailLoadSuccess(details);
+                            alertDialog.dismiss();
                         }
                     }
                 }).addOnFailureListener(new OnFailureListener() {

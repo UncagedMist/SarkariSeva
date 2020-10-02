@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -30,6 +31,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+import dmax.dialog.SpotsDialog;
 import ss.com.bannerslider.Slider;
 import tbc.uncagedmist.sarkarisahayata.Adapter.BannerSliderAdapter;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ProductAdapter;
@@ -52,10 +54,16 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
    IProductLoadListener iProductLoadListener;
    IBannerLoadListener iBannerLoadListener;
 
+   AlertDialog alertDialog;
+
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
+
+      alertDialog = new SpotsDialog(this);
+      alertDialog.setCanceledOnTouchOutside(false);
+      alertDialog.setCancelable(false);
 
       refProducts = FirebaseFirestore.getInstance().collection("Sarkari");
       refBanner = FirebaseFirestore.getInstance().collection("Banner");
@@ -141,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
    }
 
    private void loadBanners() {
+      alertDialog.show();
       refBanner.get()
               .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                  @Override
@@ -152,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
                           banners.add(banner);
                        }
                        iBannerLoadListener.onBannerLoadSuccess(banners);
+                       alertDialog.dismiss();
                     }
                  }
               }).addOnFailureListener(new OnFailureListener() {
@@ -163,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
    }
 
    private void loadProducts() {
+      alertDialog.show();
       refProducts.get()
               .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                  @Override
@@ -175,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
                           products.add(product);
                        }
                        iProductLoadListener.onProductLoadSuccess(products);
+                       alertDialog.dismiss();
                     }
                  }
               }).addOnFailureListener(new OnFailureListener() {
