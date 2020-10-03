@@ -19,11 +19,14 @@
       android:supportsRtl="true"
       android:theme="@style/AppTheme"
       android:usesCleartextTraffic="true"
-      android:name=".Common.MyApplicationClass">
+      android:name=".Common.MyApplicationClass"
+      android:hardwareAccelerated="true">
 
     <meta-data
         android:name="com.google.android.gms.ads.APPLICATION_ID"
         android:value="ca-app-pub-7920815986886474~5642992812"/>
+
+
 
     <!-- Disable opening of launcher Activity -->
     <meta-data android:name="com.onesignal.NotificationOpened.DEFAULT" android:value="ENABLE" />

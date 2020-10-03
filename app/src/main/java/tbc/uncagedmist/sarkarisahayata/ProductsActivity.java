@@ -2,12 +2,15 @@ package tbc.uncagedmist.sarkarisahayata;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,10 +18,13 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.annotations.Nullable;
 import com.google.firebase.firestore.CollectionReference;
@@ -39,7 +45,7 @@ import tbc.uncagedmist.sarkarisahayata.Service.IAllProductLoadListener;
 
 public class ProductsActivity extends AppCompatActivity implements IAllProductLoadListener {
 
-    AdView productBanner;
+    AdView productBanner,aboveBanner;
     RecyclerView recyclerService;
 
     FloatingActionButton productShare;
@@ -54,6 +60,12 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_products);
 
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+
         alertDialog = new SpotsDialog(this);
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);
@@ -61,14 +73,17 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
         recyclerService = findViewById(R.id.recycler_service);
         productBanner = findViewById(R.id.productBanner);
         productShare = findViewById(R.id.productShare);
+        aboveBanner = findViewById(R.id.productAboveBanner);
 
-        AppBarLayout toolbar = findViewById(R.id.app_bar);
+        Toolbar toolbar = findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
         TextView txtTitle = toolbar.findViewById(R.id.tool_title);
 
         txtTitle.setText(Common.CurrentProduct.getName());
 
         AdRequest adRequest = new AdRequest.Builder().build();
         productBanner.loadAd(adRequest);
+        aboveBanner.loadAd(adRequest);
 
         getAllProducts();
 
@@ -77,7 +92,7 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setType("text/plain");
-                String message = "Never Miss an Sarkari Updates. Install Sarkari Sahayata and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkarisahayata";
+                String message = "Never Miss A Sarkari Update. Install Sarkari Sahayata and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkarisahayata";
                 intent.putExtra(Intent.EXTRA_TEXT, message);
                 startActivity(Intent.createChooser(intent, "Share Sarkari Sahayata Using"));
             }
@@ -85,13 +100,48 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
 
         iAllProductLoadListener = this;
 
-        productBanner.setAdListener(new AdListener()   {
+        aboveBanner.setAdListener(new AdListener() {
             @Override
             public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
             }
 
             @Override
-            public void onAdFailedToLoad(int errorCode) {
+            public void onAdFailedToLoad(LoadAdError adError) {
+                // Code to be executed when an ad request fails.
+            }
+
+            @Override
+            public void onAdOpened() {
+                // Code to be executed when an ad opens an overlay that
+                // covers the screen.
+            }
+
+            @Override
+            public void onAdClicked() {
+                // Code to be executed when the user clicks on an ad.
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+            }
+
+            @Override
+            public void onAdClosed() {
+                // Code to be executed when the user is about to return
+                // to the app after tapping on an ad.
+            }
+        });
+
+        productBanner.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError adError) {
                 // Code to be executed when an ad request fails.
             }
 
@@ -165,6 +215,27 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
                         iAllProductLoadListener.onAllProductLoadFailed(e.getMessage());
                     }
                 });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu,menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        int id = item.getItemId();
+
+        if (id == R.id.action_about)  {
+            startActivity(new Intent(ProductsActivity.this,AboutActivity.class));
+        }
+        else if (id == R.id.action_privacy) {
+            startActivity(new Intent(ProductsActivity.this,PrivacyActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

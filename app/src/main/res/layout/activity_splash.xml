@@ -5,55 +5,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/parentView"
-    tools:context=".SplashActivity">
+    tools:context=".SplashActivity"
+    android:background="@drawable/bgback">
 
-    <androidx.viewpager2.widget.ViewPager2
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        app:lottie_autoPlay="true"
+        app:lottie_rawRes="@raw/government"/>
+
+    <com.cuberto.liquid_swipe.LiquidPager
+        android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:layout_margin="5dp"
-        android:id="@+id/viewPager"/>
+        android:layout_height="match_parent" />
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.google.android.material.tabs.TabLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/dotTabs"
-            app:tabMode="fixed"
-            app:tabGravity="center"
-            app:tabIndicatorHeight="0dp"
-            app:tabBackground="@drawable/tab_selector"/>
-
-        <com.ncorti.slidetoact.SlideToActView
-            android:id="@+id/btnContinue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:text="Slide to Continue"
-            app:text_size="23dp"
-            app:text_style="bold"
-            app:text_color="@color/colorWhite"
-            android:layout_margin="8dp"
-            android:padding="8dp"
-            android:elevation="10dp"
-            app:area_margin="10dp"
-            app:inner_color="#2196f3"
-            app:outer_color="@drawable/bg"/>
-
-        <TextView
-            android:textStyle="bold|italic"
-            android:textColor="@drawable/bg"
-            android:textSize="16sp"
-            android:text="@string/app_name"
-            android:textAlignment="center"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-    </LinearLayout>
 
 </RelativeLayout>

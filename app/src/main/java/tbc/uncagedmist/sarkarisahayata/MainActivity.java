@@ -2,20 +2,29 @@ package tbc.uncagedmist.sarkarisahayata;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -32,27 +41,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dmax.dialog.SpotsDialog;
-import ss.com.bannerslider.Slider;
-import tbc.uncagedmist.sarkarisahayata.Adapter.BannerSliderAdapter;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ProductAdapter;
-import tbc.uncagedmist.sarkarisahayata.Model.Banner;
 import tbc.uncagedmist.sarkarisahayata.Model.Product;
-import tbc.uncagedmist.sarkarisahayata.Service.IBannerLoadListener;
 import tbc.uncagedmist.sarkarisahayata.Service.IProductLoadListener;
-import tbc.uncagedmist.sarkarisahayata.Service.PicassoImageLoadingService;
 
-public class MainActivity extends AppCompatActivity implements IProductLoadListener, IBannerLoadListener {
+public class MainActivity extends AppCompatActivity implements IProductLoadListener {
 
-   AdView mainBanner;
+   AdView mainBanner,aboveBanner;
 
-   Slider bannerSlider;
    RecyclerView recyclerView;
    FloatingActionButton mainShare;
 
-   CollectionReference refProducts,refBanner;
+   CollectionReference refProducts;
 
    IProductLoadListener iProductLoadListener;
-   IBannerLoadListener iBannerLoadListener;
 
    AlertDialog alertDialog;
 
@@ -61,51 +63,93 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
 
+      MobileAds.initialize(this, new OnInitializationCompleteListener() {
+         @Override
+         public void onInitializationComplete(InitializationStatus initializationStatus) {
+         }
+      });
+
       alertDialog = new SpotsDialog(this);
       alertDialog.setCanceledOnTouchOutside(false);
       alertDialog.setCancelable(false);
 
-      refProducts = FirebaseFirestore.getInstance().collection("Sarkari");
-      refBanner = FirebaseFirestore.getInstance().collection("Banner");
+      Toolbar toolbar = findViewById(R.id.app_bar);
+      setSupportActionBar(toolbar);
+      TextView txtTitle = toolbar.findViewById(R.id.tool_title);
 
-      Slider.init(new PicassoImageLoadingService());
+      txtTitle.setText(R.string.app_name);
+
+      refProducts = FirebaseFirestore.getInstance().collection("Sarkari");
 
       mainBanner = findViewById(R.id.mainBanner);
-      bannerSlider = findViewById(R.id.banner_slider);
+      aboveBanner = findViewById(R.id.mainAboveBanner);
       recyclerView = findViewById(R.id.recyclerView);
       mainShare = findViewById(R.id.mainShare);
 
-      LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(recyclerView.getContext(),
+      LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(this,
               R.anim.layout_fall_down);
       recyclerView.setLayoutAnimation(controller);
 
       AdRequest adRequest = new AdRequest.Builder().build();
       mainBanner.loadAd(adRequest);
+      aboveBanner.loadAd(adRequest);
 
       mainShare.setOnClickListener(new View.OnClickListener() {
          @Override
          public void onClick(View view) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
-            String message = "Never Miss an Sarkari Updates. Install Sarkari Sahayata and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkarisahayata";
+            String message = "Never Miss A Sarkari Update. Install Sarkari Sahayata and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkarisahayata";
             intent.putExtra(Intent.EXTRA_TEXT, message);
             startActivity(Intent.createChooser(intent, "Share Sarkari Sahayata Using"));
          }
       });
 
       iProductLoadListener = this;
-      iBannerLoadListener = this;
-
-      loadBanners();
       loadProducts();
 
-      mainBanner.setAdListener(new AdListener()   {
+      aboveBanner.setAdListener(new AdListener() {
          @Override
          public void onAdLoaded() {
+            // Code to be executed when an ad finishes loading.
          }
 
          @Override
-         public void onAdFailedToLoad(int errorCode) {
+         public void onAdFailedToLoad(LoadAdError adError) {
+            // Code to be executed when an ad request fails.
+         }
+
+         @Override
+         public void onAdOpened() {
+            // Code to be executed when an ad opens an overlay that
+            // covers the screen.
+         }
+
+         @Override
+         public void onAdClicked() {
+            // Code to be executed when the user clicks on an ad.
+         }
+
+         @Override
+         public void onAdLeftApplication() {
+            // Code to be executed when the user has left the app.
+         }
+
+         @Override
+         public void onAdClosed() {
+            // Code to be executed when the user is about to return
+            // to the app after tapping on an ad.
+         }
+      });
+
+      mainBanner.setAdListener(new AdListener() {
+         @Override
+         public void onAdLoaded() {
+            // Code to be executed when an ad finishes loading.
+         }
+
+         @Override
+         public void onAdFailedToLoad(LoadAdError adError) {
             // Code to be executed when an ad request fails.
          }
 
@@ -148,29 +192,6 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
       });
    }
 
-   private void loadBanners() {
-      alertDialog.show();
-      refBanner.get()
-              .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                 @Override
-                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    List<Banner> banners = new ArrayList<>();
-                    if (task.isSuccessful())    {
-                       for (QueryDocumentSnapshot bannerSnapshot : task.getResult())   {
-                          Banner banner = bannerSnapshot.toObject(Banner.class);
-                          banners.add(banner);
-                       }
-                       iBannerLoadListener.onBannerLoadSuccess(banners);
-                       alertDialog.dismiss();
-                    }
-                 }
-              }).addOnFailureListener(new OnFailureListener() {
-         @Override
-         public void onFailure(@NonNull Exception e) {
-            iBannerLoadListener.onBannerLoadFailed(e.getMessage());
-         }
-      });
-   }
 
    private void loadProducts() {
       alertDialog.show();
@@ -198,6 +219,27 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
    }
 
    @Override
+   public boolean onCreateOptionsMenu(Menu menu) {
+      MenuInflater inflater = getMenuInflater();
+      inflater.inflate(R.menu.options_menu, menu);
+      return true;
+   }
+
+   @Override
+   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+      int id = item.getItemId();
+
+      if (id == R.id.action_about)  {
+         startActivity(new Intent(MainActivity.this,AboutActivity.class));
+      }
+      else if (id == R.id.action_privacy) {
+         startActivity(new Intent(MainActivity.this,PrivacyActivity.class));
+      }
+      return true;
+   }
+
+   @Override
    public void onProductLoadSuccess(List<Product> products) {
       recyclerView.setHasFixedSize(true);
       recyclerView.setLayoutManager(new GridLayoutManager(this,2));
@@ -207,16 +249,6 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
 
    @Override
    public void onProductLoadFailed(String message) {
-      Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
-   }
-
-   @Override
-   public void onBannerLoadSuccess(List<Banner> banners) {
-      bannerSlider.setAdapter(new BannerSliderAdapter(banners));
-   }
-
-   @Override
-   public void onBannerLoadFailed(String message) {
       Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
    }
 }

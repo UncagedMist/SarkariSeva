@@ -32,17 +32,17 @@ public class AboutActivity extends AppCompatActivity {
       }
       aboutPage.setVersionNameAsAppSubTitle(version);
       aboutPage.setAppDescription("" +
-              "Sarkari Seva is an Android app Designed to Help People .\n\n" +
-              "This app Provides Information on All the latest Services offered by Central and State Government with beautiful ui. " +
+              "Sarkari Sahayata is an Android app Designed to Help People .\n\n" +
+              "This app Provides Information on All the latest Services offered by Central and State Government with beautiful UI. " +
               "People can opt for any available government services and Get benefited." +
-              "It also offers to apply for available and keep the track of your Applied application.\n\n"+
+              "It also offers to apply for available Services and keep the track of your Applied application.\n\n"+
               "A fresh new take on Material layouts. " +
-              "It offers a beautiful ui and daily basis reminder notification to never miss to get any Government Updates.");
+              "It offers a beautiful UI and daily basis reminder notification to never miss to get any Government Updates.");
 
       aboutPage.addEmailLink("Kundan_kk52@outlook.com");
       aboutPage.addFacebookLink("https://www.facebook.com/TechByteCare/");
-      aboutPage.addTwitterLink("https://twitter.com/TechByteCare");
-      aboutPage.addLinkedinLink("https://www.linkedin.com/in/kundan-kumar-a82472167/");
+      aboutPage.addTwitterLink("https://twitter.com/uncagedmist");
+      aboutPage.addLinkedinLink("https://www.linkedin.com/in/uncagedmist/");
       aboutPage.addGitHubLink("https://github.com/UncagedMist");
    }
 }

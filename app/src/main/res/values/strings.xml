@@ -8,4 +8,8 @@
 
   <string name="ONE_SIGNAL_APP_ID">569cd8ff-d1ee-4c27-9305-a766dfb65ca3</string>
 
+  <string name="identity">Get All the Information about \n your Personal Identification Card \n Like : Aadhaar Card, Pan Card, \n Voter ID etc...</string>
+  <string name="services">It notifies you about \n all the Current and Upcoming \n Job, Government Services etc..</string>
+  <string name="updated">Always stay Updated without \n lacking any Benefits.</string>
+
 </resources>
