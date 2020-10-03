@@ -5,7 +5,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageView;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,13 +14,17 @@ import androidx.fragment.app.Fragment;
 
 import com.airbnb.lottie.LottieAnimationView;
 
+import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.MainActivity;
+import tbc.uncagedmist.sarkarisahayata.PrivacyActivity;
 import tbc.uncagedmist.sarkarisahayata.R;
 
 public class Fragment1 extends Fragment {
 
     LottieAnimationView animationView;
-    TextView txtSkip;
+    ImageView imgSkip;
+
+    NoInternetDialog noInternetDialog;
 
     @Nullable
     @Override
@@ -27,12 +32,14 @@ public class Fragment1 extends Fragment {
 
         ViewGroup root = (ViewGroup)inflater.inflate(R.layout.fragment1,container,false);
 
+        noInternetDialog = new NoInternetDialog.Builder(getContext()).build();
+
         animationView = root.findViewById(R.id.lottieIdentity);
-        txtSkip = root.findViewById(R.id.txtSkip);
+        imgSkip = root.findViewById(R.id.imgSkip);
 
         animationView.playAnimation();
 
-        txtSkip.setOnClickListener(new View.OnClickListener() {
+        imgSkip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(getActivity(), MainActivity.class));
@@ -48,5 +55,11 @@ public class Fragment1 extends Fragment {
         animationView.animate()
                 .setDuration(5000)
                 .setStartDelay(1000);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        noInternetDialog.onDestroy();
     }
 }

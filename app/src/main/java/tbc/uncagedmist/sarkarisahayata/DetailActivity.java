@@ -37,6 +37,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+import am.appwise.components.ni.NoInternetDialog;
 import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.DetailAdapter;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
@@ -57,6 +58,7 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
     IDetailsLoadListener iDetailsLoadListener;
 
     AlertDialog alertDialog;
+    NoInternetDialog noInternetDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,7 +184,7 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
                 if (error != null)  {
                     return;
                 }
-
+                noInternetDialog = new NoInternetDialog.Builder(DetailActivity.this).build();
                 getDetails();
             }
         });
@@ -253,5 +255,11 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
     @Override
     public void onDetailLoadFailed(String message) {
         Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        noInternetDialog.onDestroy();
     }
 }

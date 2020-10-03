@@ -37,6 +37,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+import am.appwise.components.ni.NoInternetDialog;
 import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ServiceAdapter;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
@@ -54,6 +55,8 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
     IAllProductLoadListener iAllProductLoadListener;
 
     AlertDialog alertDialog;
+
+    NoInternetDialog noInternetDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,7 +181,7 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
                 if (error != null)  {
                     return;
                 }
-
+                noInternetDialog = new NoInternetDialog.Builder(ProductsActivity.this).build();
                 getAllProducts();
             }
         });
@@ -249,5 +252,11 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
     @Override
     public void onAllProductLoadFailed(String message) {
         Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        noInternetDialog.onDestroy();
     }
 }

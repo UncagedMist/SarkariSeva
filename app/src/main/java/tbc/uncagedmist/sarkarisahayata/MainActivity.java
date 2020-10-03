@@ -18,6 +18,8 @@ import android.view.animation.LayoutAnimationController;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialog;
+import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialogListener;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -40,6 +42,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+import am.appwise.components.ni.NoInternetDialog;
 import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ProductAdapter;
 import tbc.uncagedmist.sarkarisahayata.Model.Product;
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
    IProductLoadListener iProductLoadListener;
 
    AlertDialog alertDialog;
+   NoInternetDialog noInternetDialog;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
@@ -186,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
             if (error != null)  {
                return;
             }
-
+            noInternetDialog = new NoInternetDialog.Builder(MainActivity.this).build();
             loadProducts();
          }
       });
@@ -250,5 +254,37 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
    @Override
    public void onProductLoadFailed(String message) {
       Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
+   }
+
+   @Override
+   public void onBackPressed() {
+      new TTFancyGifDialog.Builder(MainActivity.this)
+              .setTitle("Good-Bye")
+              .setMessage("Do You Want to Step Out?")
+              .setPositiveBtnText("Stay")
+              .setPositiveBtnBackground("#22b573")
+              .setNegativeBtnText("Exit")
+              .setNegativeBtnBackground("#c1272d")
+              .setGifResource(R.drawable.gif3)
+              .isCancellable(false)
+              .OnPositiveClicked(new TTFancyGifDialogListener() {
+                 @Override
+                 public void OnClick() {
+                 }
+              })
+              .OnNegativeClicked(new TTFancyGifDialogListener() {
+                 @Override
+                 public void OnClick() {
+                    moveTaskToBack(true);
+                    android.os.Process.killProcess(android.os.Process.myPid());
+                    System.exit(1);
+                 }
+              }).build();
+   }
+
+   @Override
+   public void onDestroy() {
+      super.onDestroy();
+      noInternetDialog.onDestroy();
    }
 }

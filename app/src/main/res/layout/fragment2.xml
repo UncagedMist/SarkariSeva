@@ -6,13 +6,9 @@
     android:layout_height="match_parent"
     android:background="@color/purple">
 
-    <TextView
-        android:id="@+id/txtSkip"
-        android:layout_margin="25dp"
-        android:text="Skip"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@android:color/white"
+    <ImageView
+        android:id="@+id/imgSkip"
+        android:src="@drawable/skip"
         android:layout_alignParentEnd="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>

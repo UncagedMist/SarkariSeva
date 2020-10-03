@@ -7,15 +7,20 @@ import android.os.Bundle;
 
 import com.shashank.sony.fancyaboutpagelib.FancyAboutPage;
 
+import am.appwise.components.ni.NoInternetDialog;
+
 public class AboutActivity extends AppCompatActivity {
 
    FancyAboutPage aboutPage;
    String version;
+   NoInternetDialog noInternetDialog;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_about);
+
+      noInternetDialog = new NoInternetDialog.Builder(AboutActivity.this).build();
 
       aboutPage = findViewById(R.id.aboutPage);
       aboutPage.setCover(R.drawable.coverimg);
@@ -44,5 +49,11 @@ public class AboutActivity extends AppCompatActivity {
       aboutPage.addTwitterLink("https://twitter.com/uncagedmist");
       aboutPage.addLinkedinLink("https://www.linkedin.com/in/uncagedmist/");
       aboutPage.addGitHubLink("https://github.com/UncagedMist");
+   }
+
+   @Override
+   public void onDestroy() {
+      super.onDestroy();
+      noInternetDialog.onDestroy();
    }
 }

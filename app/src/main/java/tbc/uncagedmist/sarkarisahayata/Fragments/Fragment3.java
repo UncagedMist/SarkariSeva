@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.MainActivity;
 import tbc.uncagedmist.sarkarisahayata.R;
 
@@ -21,11 +22,15 @@ public class Fragment3 extends Fragment {
     FloatingActionButton btnContinue;
     LottieAnimationView animationView;
 
+    NoInternetDialog noInternetDialog;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         ViewGroup root = (ViewGroup)inflater.inflate(R.layout.fragment3,container,false);
+
+        noInternetDialog = new NoInternetDialog.Builder(getContext()).build();
 
         btnContinue = root.findViewById(R.id.btnContinue);
         animationView = root.findViewById(R.id.lottieUpdated);
@@ -48,5 +53,11 @@ public class Fragment3 extends Fragment {
         animationView.animate()
                 .setDuration(5000)
                 .setStartDelay(1000);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        noInternetDialog.onDestroy();
     }
 }

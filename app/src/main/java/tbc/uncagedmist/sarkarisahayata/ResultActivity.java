@@ -28,6 +28,7 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import am.appwise.components.ni.NoInternetDialog;
 import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
 
@@ -39,6 +40,7 @@ public class ResultActivity extends AppCompatActivity {
 
     FloatingActionButton resultShare;
 
+    NoInternetDialog noInternetDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,8 @@ public class ResultActivity extends AppCompatActivity {
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
+
+        noInternetDialog = new NoInternetDialog.Builder(ResultActivity.this).build();
 
         webView = findViewById(R.id.webResult);
         resultBanner = findViewById(R.id.resultBanner);
@@ -205,5 +209,11 @@ public class ResultActivity extends AppCompatActivity {
             startActivity(new Intent(ResultActivity.this,PrivacyActivity.class));
         }
         return true;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        noInternetDialog.onDestroy();
     }
 }

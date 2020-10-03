@@ -22,6 +22,7 @@ import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
 
 public class PrivacyActivity extends AppCompatActivity  {
@@ -34,6 +35,8 @@ public class PrivacyActivity extends AppCompatActivity  {
 
     FloatingActionButton privacyShare;
 
+    NoInternetDialog noInternetDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +47,8 @@ public class PrivacyActivity extends AppCompatActivity  {
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
+
+        noInternetDialog = new NoInternetDialog.Builder(PrivacyActivity.this).build();
 
         webView = findViewById(R.id.webPrivacy);
         privacyBanner = findViewById(R.id.privacyBanner);
@@ -175,5 +180,11 @@ public class PrivacyActivity extends AppCompatActivity  {
                 progressDialog.dismiss();
             }
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        noInternetDialog.onDestroy();
     }
 }
