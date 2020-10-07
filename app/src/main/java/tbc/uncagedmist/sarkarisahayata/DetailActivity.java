@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,8 +21,10 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,10 +36,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import am.appwise.components.ni.NoInternetDialog;
@@ -43,6 +50,7 @@ import tbc.uncagedmist.sarkarisahayata.Adapter.DetailAdapter;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
 import tbc.uncagedmist.sarkarisahayata.Model.Detail;
 import tbc.uncagedmist.sarkarisahayata.Service.IDetailsLoadListener;
+import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
 
 public class DetailActivity extends AppCompatActivity implements IDetailsLoadListener {
 
@@ -60,10 +68,16 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
     AlertDialog alertDialog;
     NoInternetDialog noInternetDialog;
 
+    NetworkStatusReceiver networkStatusReceiver;
+
+    private InterstitialAd mInterstitialAd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        MobileAds.initialize(this, "ca-app-pub-7920815986886474~5642992812");
 
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
@@ -71,9 +85,27 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
             }
         });
 
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {}
+        });
+
         alertDialog = new SpotsDialog(this);
         alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.setCancelable(false);
+
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-7920815986886474/2058971028");
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                // Load the next interstitial.
+                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+            }
+
+        });
 
         recyclerDetail = findViewById(R.id.recycler_detail);
         detailBanner = findViewById(R.id.detailBanner);
@@ -87,6 +119,12 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
         txtTitle.setText(Common.CurrentService.getName());
 
         AdRequest adRequest = new AdRequest.Builder().build();
+
+        List<String> testDeviceIds = Arrays.asList("2E44FF2FE41B4A84DA0690667AF9595B","C28D3F7858AFA52D217602BDA4D22F8F");
+        RequestConfiguration configuration =
+                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+        MobileAds.setRequestConfiguration(configuration);
+
         detailBanner.loadAd(adRequest);
         aboveBanner.loadAd(adRequest);
 
@@ -101,6 +139,7 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
             }
         });
 
+        loadInterstitial();
         getDetails();
 
         iDetailsLoadListener = this;
@@ -185,9 +224,18 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
                     return;
                 }
                 noInternetDialog = new NoInternetDialog.Builder(DetailActivity.this).build();
+                loadInterstitial();
                 getDetails();
             }
         });
+    }
+
+    private void loadInterstitial() {
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            Log.d("TAG", "The interstitial wasn't loaded yet.");
+        }
     }
 
     private void getDetails() {
@@ -200,7 +248,9 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
                 .document(Common.CurrentService.getId())
                 .collection("Details");
 
-        refDetails.get()
+        refDetails
+                .orderBy("name", Query.Direction.ASCENDING)
+                .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -255,6 +305,27 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
     @Override
     public void onDetailLoadFailed(String message) {
         Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkStatusReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (networkStatusReceiver != null)
+            unregisterReceiver(networkStatusReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (networkStatusReceiver != null)
+            unregisterReceiver(networkStatusReceiver);
     }
 
     @Override

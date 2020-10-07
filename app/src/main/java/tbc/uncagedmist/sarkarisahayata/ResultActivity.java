@@ -3,8 +3,11 @@ package tbc.uncagedmist.sarkarisahayata;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,16 +24,22 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Arrays;
+import java.util.List;
+
 import am.appwise.components.ni.NoInternetDialog;
 import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
+import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
 
 public class ResultActivity extends AppCompatActivity {
 
@@ -42,15 +51,24 @@ public class ResultActivity extends AppCompatActivity {
 
     NoInternetDialog noInternetDialog;
 
+    NetworkStatusReceiver networkStatusReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
+        MobileAds.initialize(this, "ca-app-pub-7920815986886474~5642992812");
+
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
+        });
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {}
         });
 
         noInternetDialog = new NoInternetDialog.Builder(ResultActivity.this).build();
@@ -67,6 +85,12 @@ public class ResultActivity extends AppCompatActivity {
         txtTitle.setText(Common.CurrentDetail.getName());
 
         AdRequest adRequest = new AdRequest.Builder().build();
+
+        List<String> testDeviceIds = Arrays.asList("2E44FF2FE41B4A84DA0690667AF9595B","C28D3F7858AFA52D217602BDA4D22F8F");
+        RequestConfiguration configuration =
+                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+        MobileAds.setRequestConfiguration(configuration);
+
         resultBanner.loadAd(adRequest);
         aboveBanner.loadAd(adRequest);
 
@@ -209,6 +233,27 @@ public class ResultActivity extends AppCompatActivity {
             startActivity(new Intent(ResultActivity.this,PrivacyActivity.class));
         }
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkStatusReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (networkStatusReceiver != null)
+            unregisterReceiver(networkStatusReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (networkStatusReceiver != null)
+            unregisterReceiver(networkStatusReceiver);
     }
 
     @Override

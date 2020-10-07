@@ -2,8 +2,11 @@ package tbc.uncagedmist.sarkarisahayata;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -16,14 +19,20 @@ import androidx.appcompat.widget.Toolbar;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Arrays;
+import java.util.List;
+
 import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
+import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
 
 public class PrivacyActivity extends AppCompatActivity  {
 
@@ -37,10 +46,14 @@ public class PrivacyActivity extends AppCompatActivity  {
 
     NoInternetDialog noInternetDialog;
 
+    NetworkStatusReceiver networkStatusReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_privacy);
+
+        MobileAds.initialize(this, "ca-app-pub-7920815986886474~5642992812");
 
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
@@ -48,7 +61,13 @@ public class PrivacyActivity extends AppCompatActivity  {
             }
         });
 
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {}
+        });
+
         noInternetDialog = new NoInternetDialog.Builder(PrivacyActivity.this).build();
+
 
         webView = findViewById(R.id.webPrivacy);
         privacyBanner = findViewById(R.id.privacyBanner);
@@ -62,6 +81,12 @@ public class PrivacyActivity extends AppCompatActivity  {
         txtTitle.setText("Privacy Policy");
 
         AdRequest adRequest = new AdRequest.Builder().build();
+
+        List<String> testDeviceIds = Arrays.asList("2E44FF2FE41B4A84DA0690667AF9595B","C28D3F7858AFA52D217602BDA4D22F8F");
+        RequestConfiguration configuration =
+                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+        MobileAds.setRequestConfiguration(configuration);
+
         privacyBanner.loadAd(adRequest);
         aboveBanner.loadAd(adRequest);
 
@@ -180,6 +205,28 @@ public class PrivacyActivity extends AppCompatActivity  {
                 progressDialog.dismiss();
             }
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkStatusReceiver, intentFilter);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (networkStatusReceiver != null)
+            unregisterReceiver(networkStatusReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (networkStatusReceiver != null)
+            unregisterReceiver(networkStatusReceiver);
     }
 
     @Override

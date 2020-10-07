@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,8 +21,10 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,10 +36,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import am.appwise.components.ni.NoInternetDialog;
@@ -43,6 +50,7 @@ import tbc.uncagedmist.sarkarisahayata.Adapter.ServiceAdapter;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
 import tbc.uncagedmist.sarkarisahayata.Model.Service;
 import tbc.uncagedmist.sarkarisahayata.Service.IAllProductLoadListener;
+import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
 
 public class ProductsActivity extends AppCompatActivity implements IAllProductLoadListener {
 
@@ -58,16 +66,26 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
 
     NoInternetDialog noInternetDialog;
 
+    NetworkStatusReceiver networkStatusReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_products);
+
+        MobileAds.initialize(this, "ca-app-pub-7920815986886474~5642992812");
 
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {}
+        });
+
 
         alertDialog = new SpotsDialog(this);
         alertDialog.setCancelable(false);
@@ -85,6 +103,12 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
         txtTitle.setText(Common.CurrentProduct.getName());
 
         AdRequest adRequest = new AdRequest.Builder().build();
+
+        List<String> testDeviceIds = Arrays.asList("2E44FF2FE41B4A84DA0690667AF9595B","C28D3F7858AFA52D217602BDA4D22F8F");
+        RequestConfiguration configuration =
+                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+        MobileAds.setRequestConfiguration(configuration);
+
         productBanner.loadAd(adRequest);
         aboveBanner.loadAd(adRequest);
 
@@ -185,6 +209,7 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
                 getAllProducts();
             }
         });
+
     }
 
     private void getAllProducts() {
@@ -194,7 +219,9 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
                 .document(Common.CurrentProduct.getId())
                 .collection("Services");
 
-        refAllProducts.get()
+        refAllProducts
+                .orderBy("name", Query.Direction.ASCENDING)
+                .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -252,6 +279,27 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
     @Override
     public void onAllProductLoadFailed(String message) {
         Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkStatusReceiver, intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (networkStatusReceiver != null)
+            unregisterReceiver(networkStatusReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (networkStatusReceiver != null)
+            unregisterReceiver(networkStatusReceiver);
     }
 
     @Override

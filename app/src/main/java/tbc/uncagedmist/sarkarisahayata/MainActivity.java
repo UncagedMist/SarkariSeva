@@ -8,7 +8,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,8 +27,10 @@ import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialogListener;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,10 +42,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import am.appwise.components.ni.NoInternetDialog;
@@ -47,6 +55,7 @@ import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ProductAdapter;
 import tbc.uncagedmist.sarkarisahayata.Model.Product;
 import tbc.uncagedmist.sarkarisahayata.Service.IProductLoadListener;
+import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
 
 public class MainActivity extends AppCompatActivity implements IProductLoadListener {
 
@@ -62,15 +71,38 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
    AlertDialog alertDialog;
    NoInternetDialog noInternetDialog;
 
+   NetworkStatusReceiver networkStatusReceiver;
+
+   private InterstitialAd mInterstitialAd;
+
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
 
+      MobileAds.initialize(this, "ca-app-pub-7920815986886474~5642992812");
+
       MobileAds.initialize(this, new OnInitializationCompleteListener() {
          @Override
          public void onInitializationComplete(InitializationStatus initializationStatus) {
          }
+      });
+
+      MobileAds.initialize(this, new OnInitializationCompleteListener() {
+         @Override
+         public void onInitializationComplete(InitializationStatus initializationStatus) {}
+      });
+
+      mInterstitialAd = new InterstitialAd(this);
+      mInterstitialAd.setAdUnitId("ca-app-pub-7920815986886474/2058971028");
+      mInterstitialAd.loadAd(new AdRequest.Builder().build());
+
+      mInterstitialAd.setAdListener(new AdListener() {
+         @Override
+         public void onAdClosed() {
+            mInterstitialAd.loadAd(new AdRequest.Builder().build());
+         }
+
       });
 
       alertDialog = new SpotsDialog(this);
@@ -95,6 +127,12 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
       recyclerView.setLayoutAnimation(controller);
 
       AdRequest adRequest = new AdRequest.Builder().build();
+
+      List<String> testDeviceIds = Arrays.asList("2E44FF2FE41B4A84DA0690667AF9595B","C28D3F7858AFA52D217602BDA4D22F8F");
+      RequestConfiguration configuration =
+              new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
+      MobileAds.setRequestConfiguration(configuration);
+
       mainBanner.loadAd(adRequest);
       aboveBanner.loadAd(adRequest);
 
@@ -110,6 +148,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
       });
 
       iProductLoadListener = this;
+      loadInterstitial();
       loadProducts();
 
       aboveBanner.setAdListener(new AdListener() {
@@ -191,15 +230,25 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
                return;
             }
             noInternetDialog = new NoInternetDialog.Builder(MainActivity.this).build();
+            loadInterstitial();
             loadProducts();
          }
       });
    }
 
+   private void loadInterstitial() {
+      if (mInterstitialAd.isLoaded()) {
+         mInterstitialAd.show();
+      } else {
+         Log.d("TAG", "The interstitial wasn't loaded yet.");
+      }
+   }
 
    private void loadProducts() {
       alertDialog.show();
-      refProducts.get()
+      refProducts
+              .orderBy("name", Query.Direction.DESCENDING)
+              .get()
               .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                  @Override
                  public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -261,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
       new TTFancyGifDialog.Builder(MainActivity.this)
               .setTitle("Good-Bye")
               .setMessage("Do You Want to Step Out?")
-              .setPositiveBtnText("Stay")
+              .setPositiveBtnText("Rate US")
               .setPositiveBtnBackground("#22b573")
               .setNegativeBtnText("Exit")
               .setNegativeBtnBackground("#c1272d")
@@ -270,6 +319,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
               .OnPositiveClicked(new TTFancyGifDialogListener() {
                  @Override
                  public void OnClick() {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=tbc.uncagedmist.sarkarisahayata")));
                  }
               })
               .OnNegativeClicked(new TTFancyGifDialogListener() {
@@ -280,6 +330,27 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
                     System.exit(1);
                  }
               }).build();
+   }
+
+   @Override
+   protected void onResume() {
+      super.onResume();
+      IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+      registerReceiver(networkStatusReceiver, intentFilter);
+   }
+
+   @Override
+   protected void onPause() {
+      super.onPause();
+      if (networkStatusReceiver != null)
+         unregisterReceiver(networkStatusReceiver);
+   }
+
+   @Override
+   protected void onStop() {
+      super.onStop();
+      if (networkStatusReceiver != null)
+         unregisterReceiver(networkStatusReceiver);
    }
 
    @Override
