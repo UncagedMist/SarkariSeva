@@ -1,12 +1,9 @@
 package tbc.uncagedmist.sarkarisahayata;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -14,29 +11,21 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.Arrays;
-import java.util.List;
+import com.special.ResideMenu.ResideMenu;
+import com.special.ResideMenu.ResideMenuItem;
 
 import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
-import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
+import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
+import tbc.uncagedmist.sarkarisahayata.Helper.CustomProgressDialog;
 
-public class PrivacyActivity extends AppCompatActivity  {
-
-    ProgressDialog progressDialog;
+public class PrivacyActivity extends AppCompatActivity implements View.OnClickListener  {
 
     WebView webView;
 
@@ -46,46 +35,39 @@ public class PrivacyActivity extends AppCompatActivity  {
 
     NoInternetDialog noInternetDialog;
 
-    NetworkStatusReceiver networkStatusReceiver;
+    CustomLoadDialog loadDialog;
+    CustomProgressDialog progressDialog;
+
+    private ResideMenu resideMenu;
+    private ResideMenuItem itemHome;
+    private ResideMenuItem itemAbout;
+    private ResideMenuItem itemPrivacy;
+    private ResideMenuItem itemSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_privacy);
 
-        MobileAds.initialize(this, "ca-app-pub-7920815986886474~5642992812");
+        loadDialog = new CustomLoadDialog(this);
+        progressDialog = new CustomProgressDialog(this);
 
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {}
-        });
+        loadDialog.showDialog();
 
         noInternetDialog = new NoInternetDialog.Builder(PrivacyActivity.this).build();
-
 
         webView = findViewById(R.id.webPrivacy);
         privacyBanner = findViewById(R.id.privacyBanner);
         aboveBanner = findViewById(R.id.privacyAboveBanner);
         privacyShare = findViewById(R.id.privacyShare);
 
-        Toolbar toolbar = findViewById(R.id.app_bar);
-        setSupportActionBar(toolbar);
-        TextView txtTitle = toolbar.findViewById(R.id.tool_title);
+        TextView txtTitle = findViewById(R.id.txtTitle);
 
         txtTitle.setText("Privacy Policy");
 
-        AdRequest adRequest = new AdRequest.Builder().build();
+        setUpResideMenu();
 
-        List<String> testDeviceIds = Arrays.asList("2E44FF2FE41B4A84DA0690667AF9595B","C28D3F7858AFA52D217602BDA4D22F8F");
-        RequestConfiguration configuration =
-                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
-        MobileAds.setRequestConfiguration(configuration);
+        AdRequest adRequest = new AdRequest.Builder().build();
 
         privacyBanner.loadAd(adRequest);
         aboveBanner.loadAd(adRequest);
@@ -192,42 +174,89 @@ public class PrivacyActivity extends AppCompatActivity  {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
-            progressDialog = new ProgressDialog(PrivacyActivity.this);
-            progressDialog.setMessage("Please wait ...");
-            progressDialog.show();
-            progressDialog.setCancelable(false);
+            loadDialog.hideDialog();
+            progressDialog.showProgressDialog();
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
             if(progressDialog!=null){
-                progressDialog.dismiss();
+                progressDialog.hideProgressDialog();
             }
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(networkStatusReceiver, intentFilter);
+    private void setUpResideMenu() {
 
+        resideMenu = new ResideMenu(this);
+//        resideMenu.setUse3D(true);
+        resideMenu.setBackground(R.drawable.menu_background);
+        resideMenu.attachToActivity(this);
+        resideMenu.setMenuListener(menuListener);
+
+        resideMenu.setScaleValue(0.6f);
+
+        itemHome     = new ResideMenuItem(this, R.drawable.icon_home,     "Home");
+        itemAbout  = new ResideMenuItem(this, R.drawable.icon_profile,  "About");
+        itemPrivacy = new ResideMenuItem(this, R.drawable.icon_profile, "Privacy");
+        itemSettings = new ResideMenuItem(this, R.drawable.icon_settings, "Settings");
+
+        itemHome.setOnClickListener(this);
+        itemAbout.setOnClickListener(this);
+        itemPrivacy.setOnClickListener(this);
+        itemSettings.setOnClickListener(this);
+
+        resideMenu.addMenuItem(itemHome, ResideMenu.DIRECTION_LEFT);
+        resideMenu.addMenuItem(itemAbout, ResideMenu.DIRECTION_LEFT);
+        resideMenu.addMenuItem(itemPrivacy, ResideMenu.DIRECTION_RIGHT);
+        resideMenu.addMenuItem(itemSettings, ResideMenu.DIRECTION_RIGHT);
+
+        findViewById(R.id.title_bar_left_menu).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
+            }
+        });
+        findViewById(R.id.title_bar_right_menu).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
+            }
+        });
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (networkStatusReceiver != null)
-            unregisterReceiver(networkStatusReceiver);
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return resideMenu.dispatchTouchEvent(ev);
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        if (networkStatusReceiver != null)
-            unregisterReceiver(networkStatusReceiver);
+    public void onClick(View view) {
+
+        if (view == itemHome){
+        }
+        else if (view == itemAbout){
+            startActivity(new Intent(PrivacyActivity.this,AboutActivity.class));
+        }
+        else if (view == itemPrivacy){
+        }
+        else if (view == itemSettings){
+            startActivity(new Intent(PrivacyActivity.this,SettingActivity.class));
+        }
+
+        resideMenu.closeMenu();
     }
+
+    private ResideMenu.OnMenuListener menuListener = new ResideMenu.OnMenuListener() {
+        @Override
+        public void openMenu() {
+        }
+
+        @Override
+        public void closeMenu() {
+        }
+    };
 
     @Override
     public void onDestroy() {

@@ -2,20 +2,14 @@ package tbc.uncagedmist.sarkarisahayata;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
@@ -29,10 +23,6 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -45,19 +35,19 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.special.ResideMenu.ResideMenu;
+import com.special.ResideMenu.ResideMenuItem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import am.appwise.components.ni.NoInternetDialog;
-import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ProductAdapter;
+import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
 import tbc.uncagedmist.sarkarisahayata.Model.Product;
 import tbc.uncagedmist.sarkarisahayata.Service.IProductLoadListener;
-import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
 
-public class MainActivity extends AppCompatActivity implements IProductLoadListener {
+public class MainActivity extends AppCompatActivity implements IProductLoadListener, View.OnClickListener {
 
    AdView mainBanner,aboveBanner;
 
@@ -68,33 +58,29 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
 
    IProductLoadListener iProductLoadListener;
 
-   AlertDialog alertDialog;
    NoInternetDialog noInternetDialog;
 
-   NetworkStatusReceiver networkStatusReceiver;
-
    private InterstitialAd mInterstitialAd;
+
+   CustomLoadDialog loadDialog;
+
+   private ResideMenu resideMenu;
+   private ResideMenuItem itemHome;
+   private ResideMenuItem itemAbout;
+   private ResideMenuItem itemPrivacy;
+   private ResideMenuItem itemSettings;
 
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
       setContentView(R.layout.activity_main);
 
-      MobileAds.initialize(this, "ca-app-pub-7920815986886474~5642992812");
+      loadDialog = new CustomLoadDialog(this);
 
-      MobileAds.initialize(this, new OnInitializationCompleteListener() {
-         @Override
-         public void onInitializationComplete(InitializationStatus initializationStatus) {
-         }
-      });
-
-      MobileAds.initialize(this, new OnInitializationCompleteListener() {
-         @Override
-         public void onInitializationComplete(InitializationStatus initializationStatus) {}
-      });
+      noInternetDialog = new NoInternetDialog.Builder(MainActivity.this).build();
 
       mInterstitialAd = new InterstitialAd(this);
-      mInterstitialAd.setAdUnitId("ca-app-pub-7920815986886474/2058971028");
+      mInterstitialAd.setAdUnitId("ca-app-pub-5860770870597755/7084452405");
       mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
       mInterstitialAd.setAdListener(new AdListener() {
@@ -105,15 +91,11 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
 
       });
 
-      alertDialog = new SpotsDialog(this);
-      alertDialog.setCanceledOnTouchOutside(false);
-      alertDialog.setCancelable(false);
-
-      Toolbar toolbar = findViewById(R.id.app_bar);
-      setSupportActionBar(toolbar);
-      TextView txtTitle = toolbar.findViewById(R.id.tool_title);
+      TextView txtTitle = findViewById(R.id.txtTitle);
 
       txtTitle.setText(R.string.app_name);
+
+      setUpResideMenu();
 
       refProducts = FirebaseFirestore.getInstance().collection("Sarkari");
 
@@ -127,11 +109,6 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
       recyclerView.setLayoutAnimation(controller);
 
       AdRequest adRequest = new AdRequest.Builder().build();
-
-      List<String> testDeviceIds = Arrays.asList("2E44FF2FE41B4A84DA0690667AF9595B","C28D3F7858AFA52D217602BDA4D22F8F");
-      RequestConfiguration configuration =
-              new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
-      MobileAds.setRequestConfiguration(configuration);
 
       mainBanner.loadAd(adRequest);
       aboveBanner.loadAd(adRequest);
@@ -229,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
             if (error != null)  {
                return;
             }
-            noInternetDialog = new NoInternetDialog.Builder(MainActivity.this).build();
             loadInterstitial();
             loadProducts();
          }
@@ -245,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
    }
 
    private void loadProducts() {
-      alertDialog.show();
+      loadDialog.showDialog();
       refProducts
               .orderBy("name", Query.Direction.DESCENDING)
               .get()
@@ -260,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
                           products.add(product);
                        }
                        iProductLoadListener.onProductLoadSuccess(products);
-                       alertDialog.dismiss();
+                       loadDialog.hideDialog();
                     }
                  }
               }).addOnFailureListener(new OnFailureListener() {
@@ -269,27 +245,6 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
             iProductLoadListener.onProductLoadFailed(e.getMessage());
          }
       });
-   }
-
-   @Override
-   public boolean onCreateOptionsMenu(Menu menu) {
-      MenuInflater inflater = getMenuInflater();
-      inflater.inflate(R.menu.options_menu, menu);
-      return true;
-   }
-
-   @Override
-   public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-      int id = item.getItemId();
-
-      if (id == R.id.action_about)  {
-         startActivity(new Intent(MainActivity.this,AboutActivity.class));
-      }
-      else if (id == R.id.action_privacy) {
-         startActivity(new Intent(MainActivity.this,PrivacyActivity.class));
-      }
-      return true;
    }
 
    @Override
@@ -332,26 +287,78 @@ public class MainActivity extends AppCompatActivity implements IProductLoadListe
               }).build();
    }
 
-   @Override
-   protected void onResume() {
-      super.onResume();
-      IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-      registerReceiver(networkStatusReceiver, intentFilter);
+   private void setUpResideMenu() {
+
+      resideMenu = new ResideMenu(this);
+//        resideMenu.setUse3D(true);
+      resideMenu.setBackground(R.drawable.menu_background);
+      resideMenu.attachToActivity(this);
+      resideMenu.setMenuListener(menuListener);
+
+      resideMenu.setScaleValue(0.6f);
+
+      itemHome     = new ResideMenuItem(this, R.drawable.icon_home,     "Home");
+      itemAbout  = new ResideMenuItem(this, R.drawable.icon_profile,  "About");
+      itemPrivacy = new ResideMenuItem(this, R.drawable.icon_profile, "Privacy");
+      itemSettings = new ResideMenuItem(this, R.drawable.icon_settings, "Settings");
+
+      itemHome.setOnClickListener(this);
+      itemAbout.setOnClickListener(this);
+      itemPrivacy.setOnClickListener(this);
+      itemSettings.setOnClickListener(this);
+
+      resideMenu.addMenuItem(itemHome, ResideMenu.DIRECTION_LEFT);
+      resideMenu.addMenuItem(itemAbout, ResideMenu.DIRECTION_LEFT);
+      resideMenu.addMenuItem(itemPrivacy, ResideMenu.DIRECTION_RIGHT);
+      resideMenu.addMenuItem(itemSettings, ResideMenu.DIRECTION_RIGHT);
+
+      findViewById(R.id.title_bar_left_menu).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
+         }
+      });
+      findViewById(R.id.title_bar_right_menu).setOnClickListener(new View.OnClickListener() {
+         @Override
+         public void onClick(View view) {
+            resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
+         }
+      });
    }
 
    @Override
-   protected void onPause() {
-      super.onPause();
-      if (networkStatusReceiver != null)
-         unregisterReceiver(networkStatusReceiver);
+   public boolean dispatchTouchEvent(MotionEvent ev) {
+      return resideMenu.dispatchTouchEvent(ev);
    }
 
    @Override
-   protected void onStop() {
-      super.onStop();
-      if (networkStatusReceiver != null)
-         unregisterReceiver(networkStatusReceiver);
+   public void onClick(View view) {
+
+      if (view == itemHome){
+      }
+      else if (view == itemAbout){
+         startActivity(new Intent(MainActivity.this,AboutActivity.class));
+      }
+      else if (view == itemPrivacy){
+         startActivity(new Intent(MainActivity.this,PrivacyActivity.class));
+
+      }
+      else if (view == itemSettings){
+         startActivity(new Intent(MainActivity.this,SettingActivity.class));
+      }
+
+      resideMenu.closeMenu();
    }
+
+   private ResideMenu.OnMenuListener menuListener = new ResideMenu.OnMenuListener() {
+      @Override
+      public void openMenu() {
+      }
+
+      @Override
+      public void closeMenu() {
+      }
+   };
 
    @Override
    public void onDestroy() {

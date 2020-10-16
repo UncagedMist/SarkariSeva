@@ -1,10 +1,27 @@
 <resources>
   <string name="app_name">Sarkari Sahayata</string>
 
-  <string name="APP_ID">ca-app-pub-7920815986886474~5642992812</string>
-  <string name="BANNER_ID">ca-app-pub-7920815986886474/6189787724</string>
-  <string name="SCREEN_ID">ca-app-pub-7920815986886474/2058971028</string>
-  <string name="NATIVE_ID">ca-app-pub-7920815986886474/1966459925</string>
+  <string name="APP_ID">ca-app-pub-5860770870597755~3016203128</string>
+
+  <string name="BANNER_Detail">ca-app-pub-5860770870597755/7659167476</string>
+  <string name="BANNER_Detail_Bottom">ca-app-pub-5860770870597755/3719922465</string>
+
+  <string name="BANNER_Main">ca-app-pub-5860770870597755/8780677457</string>
+  <string name="BANNER_Main_Bottom">ca-app-pub-5860770870597755/6154514115</string>
+
+  <string name="BANNER_Privacy">ca-app-pub-5860770870597755/2487071154</string>
+  <string name="BANNER_Privacy_Bottom">ca-app-pub-5860770870597755/4988772106</string>
+
+  <string name="BANNER_Products">ca-app-pub-5860770870597755/9722046424</string>
+  <string name="BANNER_Products_Bottom">ca-app-pub-5860770870597755/1173989489</string>
+
+  <string name="BANNER_Result">ca-app-pub-5860770870597755/1843556404</string>
+  <string name="BANNER_Result_Bottom">ca-app-pub-5860770870597755/6904311394</string>
+
+  <string name="BANNER_Setting">ca-app-pub-5860770870597755/6918954962</string>
+  <string name="BANNER_Setting_Bottom">ca-app-pub-5860770870597755/8646969602</string>
+
+
 
   <string name="ONE_SIGNAL_APP_ID">569cd8ff-d1ee-4c27-9305-a766dfb65ca3</string>
 

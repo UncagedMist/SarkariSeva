@@ -2,18 +2,13 @@ package tbc.uncagedmist.sarkarisahayata;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +18,6 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -39,63 +30,53 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.special.ResideMenu.ResideMenu;
+import com.special.ResideMenu.ResideMenuItem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import am.appwise.components.ni.NoInternetDialog;
-import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.DetailAdapter;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
+import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
 import tbc.uncagedmist.sarkarisahayata.Model.Detail;
 import tbc.uncagedmist.sarkarisahayata.Service.IDetailsLoadListener;
-import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
 
-public class DetailActivity extends AppCompatActivity implements IDetailsLoadListener {
+public class DetailActivity extends AppCompatActivity implements IDetailsLoadListener, View.OnClickListener {
 
     AdView detailBanner, aboveBanner;
     RecyclerView recyclerDetail;
 
     CollectionReference refDetails;
 
-    TextView txtTitle;
-
     FloatingActionButton detailShare;
 
     IDetailsLoadListener iDetailsLoadListener;
 
-    AlertDialog alertDialog;
     NoInternetDialog noInternetDialog;
 
-    NetworkStatusReceiver networkStatusReceiver;
-
     private InterstitialAd mInterstitialAd;
+
+    CustomLoadDialog loadDialog;
+
+    private ResideMenu resideMenu;
+    private ResideMenuItem itemHome;
+    private ResideMenuItem itemAbout;
+    private ResideMenuItem itemPrivacy;
+    private ResideMenuItem itemSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        MobileAds.initialize(this, "ca-app-pub-7920815986886474~5642992812");
+        loadDialog = new CustomLoadDialog(this);
 
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {}
-        });
-
-        alertDialog = new SpotsDialog(this);
-        alertDialog.setCanceledOnTouchOutside(false);
-        alertDialog.setCancelable(false);
+        noInternetDialog = new NoInternetDialog.Builder(DetailActivity.this).build();
 
         mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-7920815986886474/2058971028");
+        mInterstitialAd.setAdUnitId("ca-app-pub-5860770870597755/3145207391");
         mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
         mInterstitialAd.setAdListener(new AdListener() {
@@ -112,18 +93,13 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
         detailShare = findViewById(R.id.detailShare);
         aboveBanner = findViewById(R.id.detailAboveBanner);
 
-        Toolbar toolbar = findViewById(R.id.app_bar);
-        setSupportActionBar(toolbar);
-        txtTitle = toolbar.findViewById(R.id.tool_title);
+        TextView txtTitle = findViewById(R.id.txtTitle);
 
         txtTitle.setText(Common.CurrentService.getName());
 
-        AdRequest adRequest = new AdRequest.Builder().build();
+        setUpResideMenu();
 
-        List<String> testDeviceIds = Arrays.asList("2E44FF2FE41B4A84DA0690667AF9595B","C28D3F7858AFA52D217602BDA4D22F8F");
-        RequestConfiguration configuration =
-                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
-        MobileAds.setRequestConfiguration(configuration);
+        AdRequest adRequest = new AdRequest.Builder().build();
 
         detailBanner.loadAd(adRequest);
         aboveBanner.loadAd(adRequest);
@@ -223,7 +199,6 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
                 if (error != null)  {
                     return;
                 }
-                noInternetDialog = new NoInternetDialog.Builder(DetailActivity.this).build();
                 loadInterstitial();
                 getDetails();
             }
@@ -240,7 +215,8 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
 
     private void getDetails() {
 
-        alertDialog.show();
+        loadDialog.showDialog();
+
         refDetails = FirebaseFirestore.getInstance()
                 .collection("Sarkari")
                 .document(Common.CurrentProduct.getId())
@@ -262,7 +238,7 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
                                 details.add(detail);
                             }
                             iDetailsLoadListener.onDetailLoadSuccess(details);
-                            alertDialog.dismiss();
+                            loadDialog.hideDialog();
                         }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -271,27 +247,6 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
                 iDetailsLoadListener.onDetailLoadFailed(e.getMessage());
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.options_menu,menu);
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        int id = item.getItemId();
-
-        if (id == R.id.action_about)  {
-            startActivity(new Intent(DetailActivity.this,AboutActivity.class));
-        }
-        else if (id == R.id.action_privacy) {
-            startActivity(new Intent(DetailActivity.this,PrivacyActivity.class));
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -307,26 +262,78 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
         Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
     }
 
+    private void setUpResideMenu() {
+
+    resideMenu = new ResideMenu(this);
+//        resideMenu.setUse3D(true);
+    resideMenu.setBackground(R.drawable.menu_background);
+    resideMenu.attachToActivity(this);
+    resideMenu.setMenuListener(menuListener);
+
+    resideMenu.setScaleValue(0.6f);
+
+    itemHome     = new ResideMenuItem(this, R.drawable.icon_home,     "Home");
+    itemAbout  = new ResideMenuItem(this, R.drawable.icon_profile,  "About");
+    itemPrivacy = new ResideMenuItem(this, R.drawable.icon_profile, "Privacy");
+    itemSettings = new ResideMenuItem(this, R.drawable.icon_settings, "Settings");
+
+    itemHome.setOnClickListener(this);
+    itemAbout.setOnClickListener(this);
+    itemPrivacy.setOnClickListener(this);
+    itemSettings.setOnClickListener(this);
+
+    resideMenu.addMenuItem(itemHome, ResideMenu.DIRECTION_LEFT);
+    resideMenu.addMenuItem(itemAbout, ResideMenu.DIRECTION_LEFT);
+    resideMenu.addMenuItem(itemPrivacy, ResideMenu.DIRECTION_RIGHT);
+    resideMenu.addMenuItem(itemSettings, ResideMenu.DIRECTION_RIGHT);
+
+    findViewById(R.id.title_bar_left_menu).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
+        }
+    });
+    findViewById(R.id.title_bar_right_menu).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
+        }
+    });
+}
+
     @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(networkStatusReceiver, intentFilter);
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return resideMenu.dispatchTouchEvent(ev);
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (networkStatusReceiver != null)
-            unregisterReceiver(networkStatusReceiver);
+    public void onClick(View view) {
+
+        if (view == itemHome){
+        }
+        else if (view == itemAbout){
+            startActivity(new Intent(DetailActivity.this,AboutActivity.class));
+        }
+        else if (view == itemPrivacy){
+            startActivity(new Intent(DetailActivity.this,PrivacyActivity.class));
+
+        }
+        else if (view == itemSettings){
+            startActivity(new Intent(DetailActivity.this,SettingActivity.class));
+        }
+
+        resideMenu.closeMenu();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (networkStatusReceiver != null)
-            unregisterReceiver(networkStatusReceiver);
-    }
+    private ResideMenu.OnMenuListener menuListener = new ResideMenu.OnMenuListener() {
+        @Override
+        public void openMenu() {
+        }
+
+        @Override
+        public void closeMenu() {
+        }
+    };
 
     @Override
     public void onDestroy() {

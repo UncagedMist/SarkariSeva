@@ -24,7 +24,7 @@ import static androidx.lifecycle.Lifecycle.Event.ON_START;
 public class AppOpenManager implements LifecycleObserver,Application.ActivityLifecycleCallbacks {
 
     private static final String LOG_TAG = "AppOpenManager";
-    private static final String AD_UNIT_ID = "ca-app-pub-7920815986886474/8070931716";
+    private static final String AD_UNIT_ID = "ca-app-pub-5860770870597755/8205962389";
     private AppOpenAd appOpenAd = null;
 
     private Activity currentActivity;
@@ -144,7 +144,8 @@ public class AppOpenManager implements LifecycleObserver,Application.ActivityLif
 
             appOpenAd.show(currentActivity, fullScreenContentCallback);
 
-        } else {
+        }
+        else {
             Log.d(LOG_TAG, "Can not show ad.");
             fetchAd();
         }

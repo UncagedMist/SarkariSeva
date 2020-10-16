@@ -1,75 +1,60 @@
 package tbc.uncagedmist.sarkarisahayata;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
+import android.net.http.SslError;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
+import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialog;
+import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialogListener;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.RequestConfiguration;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.Arrays;
-import java.util.List;
+import com.special.ResideMenu.ResideMenu;
+import com.special.ResideMenu.ResideMenuItem;
 
 import am.appwise.components.ni.NoInternetDialog;
-import dmax.dialog.SpotsDialog;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
-import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
+import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
+import tbc.uncagedmist.sarkarisahayata.Helper.CustomProgressDialog;
 
-public class ResultActivity extends AppCompatActivity {
+public class ResultActivity extends AppCompatActivity implements View.OnClickListener {
 
     AdView resultBanner,aboveBanner;
     WebView webView;
-    ProgressDialog progressDialog;
-
     FloatingActionButton resultShare;
 
     NoInternetDialog noInternetDialog;
 
-    NetworkStatusReceiver networkStatusReceiver;
+    CustomLoadDialog loadDialog;
+    CustomProgressDialog progressDialog;
+
+    private ResideMenu resideMenu;
+    private ResideMenuItem itemHome;
+    private ResideMenuItem itemAbout;
+    private ResideMenuItem itemPrivacy;
+    private ResideMenuItem itemSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
-        MobileAds.initialize(this, "ca-app-pub-7920815986886474~5642992812");
+        loadDialog = new CustomLoadDialog(this);
+        progressDialog = new CustomProgressDialog(this);
 
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {}
-        });
+        loadDialog.showDialog();
 
         noInternetDialog = new NoInternetDialog.Builder(ResultActivity.this).build();
 
@@ -77,19 +62,15 @@ public class ResultActivity extends AppCompatActivity {
         resultBanner = findViewById(R.id.resultBanner);
         aboveBanner = findViewById(R.id.resultAboveBanner);
 
-        Toolbar toolbar = findViewById(R.id.app_bar);
-        setSupportActionBar(toolbar);
-        TextView txtTitle = toolbar.findViewById(R.id.tool_title);
         resultShare = findViewById(R.id.resultShare);
+
+        TextView txtTitle = findViewById(R.id.txtTitle);
 
         txtTitle.setText(Common.CurrentDetail.getName());
 
-        AdRequest adRequest = new AdRequest.Builder().build();
+        setUpResideMenu();
 
-        List<String> testDeviceIds = Arrays.asList("2E44FF2FE41B4A84DA0690667AF9595B","C28D3F7858AFA52D217602BDA4D22F8F");
-        RequestConfiguration configuration =
-                new RequestConfiguration.Builder().setTestDeviceIds(testDeviceIds).build();
-        MobileAds.setRequestConfiguration(configuration);
+        AdRequest adRequest = new AdRequest.Builder().build();
 
         resultBanner.loadAd(adRequest);
         aboveBanner.loadAd(adRequest);
@@ -189,6 +170,49 @@ public class ResultActivity extends AppCompatActivity {
     private class MyWebViewClient extends WebViewClient {
 
         @Override
+        public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+            String message = "SSL Certificate Error";
+            switch (error.getPrimaryError()) {
+                case SslError.SSL_UNTRUSTED:
+                    message = "The certificate authority is not trusted.";
+                    break;
+                case SslError.SSL_EXPIRED:
+                    message = "The certificate has expired.";
+                    break;
+                case SslError.SSL_IDMISMATCH:
+                    message = "The certificate Hostname mismatch.";
+                    break;
+                case SslError.SSL_NOTYETVALID:
+                    message = "The certificate is not yet valid.";
+                    break;
+            }
+
+            message += "\n\nDo you want to continue anyway?";
+
+            new TTFancyGifDialog.Builder(ResultActivity.this)
+                    .setTitle("SSL Certificate Error")
+                    .setMessage(message)
+                    .setPositiveBtnText("Continue")
+                    .setPositiveBtnBackground("#22b573")
+                    .setNegativeBtnText("Cancel")
+                    .setNegativeBtnBackground("#c1272d")
+                    .setGifResource(R.drawable.gif22)
+                    .isCancellable(false)
+                    .OnPositiveClicked(new TTFancyGifDialogListener() {
+                        @Override
+                        public void OnClick() {
+                            handler.proceed();
+                        }
+                    })
+                    .OnNegativeClicked(new TTFancyGifDialogListener() {
+                        @Override
+                        public void OnClick() {
+                            handler.cancel();
+                        }
+                    }).build();
+        }
+
+        @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             view.loadUrl(url);
 
@@ -199,62 +223,91 @@ public class ResultActivity extends AppCompatActivity {
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
-            progressDialog = new ProgressDialog(ResultActivity.this);
-            progressDialog.setMessage("Please wait ...");
-            progressDialog.show();
-            progressDialog.setCancelable(false);
+            loadDialog.hideDialog();
+            progressDialog.showProgressDialog();
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
             if(progressDialog!=null){
-                progressDialog.dismiss();
+                progressDialog.hideProgressDialog();
             }
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.options_menu, menu);
-        return true;
+    private void setUpResideMenu() {
+
+        resideMenu = new ResideMenu(this);
+//        resideMenu.setUse3D(true);
+        resideMenu.setBackground(R.drawable.menu_background);
+        resideMenu.attachToActivity(this);
+        resideMenu.setMenuListener(menuListener);
+
+        resideMenu.setScaleValue(0.6f);
+
+        itemHome     = new ResideMenuItem(this, R.drawable.icon_home,     "Home");
+        itemAbout  = new ResideMenuItem(this, R.drawable.icon_profile,  "About");
+        itemPrivacy = new ResideMenuItem(this, R.drawable.icon_profile, "Privacy");
+        itemSettings = new ResideMenuItem(this, R.drawable.icon_settings, "Settings");
+
+        itemHome.setOnClickListener(this);
+        itemAbout.setOnClickListener(this);
+        itemPrivacy.setOnClickListener(this);
+        itemSettings.setOnClickListener(this);
+
+        resideMenu.addMenuItem(itemHome, ResideMenu.DIRECTION_LEFT);
+        resideMenu.addMenuItem(itemAbout, ResideMenu.DIRECTION_LEFT);
+        resideMenu.addMenuItem(itemPrivacy, ResideMenu.DIRECTION_RIGHT);
+        resideMenu.addMenuItem(itemSettings, ResideMenu.DIRECTION_RIGHT);
+
+        findViewById(R.id.title_bar_left_menu).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
+            }
+        });
+        findViewById(R.id.title_bar_right_menu).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
+            }
+        });
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        return resideMenu.dispatchTouchEvent(ev);
+    }
 
-        int id = item.getItemId();
+    @Override
+    public void onClick(View view) {
 
-        if (id == R.id.action_about)  {
+        if (view == itemHome){
+        }
+        else if (view == itemAbout){
             startActivity(new Intent(ResultActivity.this,AboutActivity.class));
         }
-        else if (id == R.id.action_privacy) {
+        else if (view == itemPrivacy){
             startActivity(new Intent(ResultActivity.this,PrivacyActivity.class));
+
         }
-        return true;
+        else if (view == itemSettings){
+            startActivity(new Intent(ResultActivity.this,SettingActivity.class));
+        }
+
+        resideMenu.closeMenu();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(networkStatusReceiver, intentFilter);
-    }
+    private ResideMenu.OnMenuListener menuListener = new ResideMenu.OnMenuListener() {
+        @Override
+        public void openMenu() {
+        }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (networkStatusReceiver != null)
-            unregisterReceiver(networkStatusReceiver);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (networkStatusReceiver != null)
-            unregisterReceiver(networkStatusReceiver);
-    }
+        @Override
+        public void closeMenu() {
+        }
+    };
 
     @Override
     public void onDestroy() {
