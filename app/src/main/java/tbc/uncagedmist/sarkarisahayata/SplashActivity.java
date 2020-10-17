@@ -1,22 +1,31 @@
 package tbc.uncagedmist.sarkarisahayata;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
-
+import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.UpdateAvailability;
+import com.google.android.play.core.tasks.OnSuccessListener;
+import com.google.android.play.core.tasks.Task;
 
 import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ScreenSliderPagerAdapter;
 
 public class SplashActivity extends AppCompatActivity {
+
+    private static final int REQUEST_CODE = 5152;
 
     LottieAnimationView animationView;
 
@@ -32,17 +41,6 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {}
-        });
-
         noInternetDialog = new NoInternetDialog.Builder(SplashActivity.this).build();
 
         animationView = findViewById(R.id.lottie);
@@ -54,6 +52,37 @@ public class SplashActivity extends AppCompatActivity {
 
         setAdapter();
         setupAnimation();
+
+        final AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(SplashActivity.this);
+        Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+
+        appUpdateInfoTask.addOnSuccessListener(new OnSuccessListener<AppUpdateInfo>() {
+            @Override
+            public void onSuccess(AppUpdateInfo result) {
+                if (result.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
+                        result.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE))    {
+
+                    try {
+                        appUpdateManager.startUpdateFlowForResult(result,AppUpdateType.IMMEDIATE,SplashActivity.this,REQUEST_CODE);
+                    } catch (IntentSender.SendIntentException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE)    {
+
+        }
+
+        if (resultCode != RESULT_OK)    {
+            Log.d("Failed.", "Update Flow Failed: "+resultCode);
+        }
     }
 
     private void setAdapter() {
