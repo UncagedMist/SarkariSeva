@@ -22,10 +22,13 @@ import com.google.android.play.core.tasks.Task;
 
 import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ScreenSliderPagerAdapter;
+import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
 
 public class SplashActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 5152;
+
+    NetworkStatusReceiver receiver;
 
     LottieAnimationView animationView;
 

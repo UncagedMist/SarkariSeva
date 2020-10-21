@@ -68,7 +68,7 @@ public class MyApplicationClass extends Application {
       @Override
       public void onActivityResumed(Activity activity) {
         mActivity = activity;
-        registerNetworkBroadcastForNougat();
+        registerNetworkBroadcastForLollipop();
       }
 
       @Override
@@ -79,23 +79,20 @@ public class MyApplicationClass extends Application {
 
       @Override
       public void onActivityStopped(Activity activity) {
-
       }
 
       @Override
       public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
-
       }
 
       @Override
       public void onActivityDestroyed(Activity activity) {
-
       }
     });
   }
 
-  private void registerNetworkBroadcastForNougat() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+  private void registerNetworkBroadcastForLollipop() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       registerReceiver(mNetworkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
   }
