@@ -174,6 +174,26 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
    @Override
    public void onBackPressed() {
+      new TTFancyGifDialog.Builder(MainActivity.this)
+              .setTitle("One Ration Card")
+              .setMessage("Support us by downloading our other apps!")
+              .setPositiveBtnText("Support")
+              .setPositiveBtnBackground("#22b573")
+              .setNegativeBtnText("Don't")
+              .setNegativeBtnBackground("#c1272d")
+              .setGifResource(R.drawable.ic_logo)
+              .isCancellable(false)
+              .OnPositiveClicked(new TTFancyGifDialogListener() {
+                 @Override
+                 public void OnClick() {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=tbc.uncagedmist.rationcard")));
+                 }
+              })
+              .OnNegativeClicked(new TTFancyGifDialogListener() {
+                 @Override
+                 public void OnClick() {
+                 }
+              }).build();
    }
 
    @Override

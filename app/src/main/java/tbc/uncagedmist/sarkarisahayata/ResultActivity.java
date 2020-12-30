@@ -6,11 +6,13 @@ import android.net.http.SslError;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.SslErrorHandler;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -21,6 +23,8 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.monstertechno.adblocker.AdBlockerWebView;
+import com.monstertechno.adblocker.util.AdBlocker;
 
 import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
@@ -62,6 +66,8 @@ public class ResultActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setTitle(Common.CurrentDetail.getName());
+
+        new AdBlockerWebView.init(this).initializeWebView(webView);
 
         AdRequest adRequest = new AdRequest.Builder().build();
 
@@ -170,6 +176,16 @@ public class ResultActivity extends AppCompatActivity {
 
     private class MyWebViewClient extends WebViewClient {
 
+        MyWebViewClient()   {}
+
+        @SuppressWarnings("deprecation")
+        @Nullable
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            return AdBlockerWebView.blockAds(view,url) ? AdBlocker.createEmptyResource() :
+                    super.shouldInterceptRequest(view, url);
+        }
+
         @Override
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             String message = "SSL Certificate Error";
@@ -234,6 +250,13 @@ public class ResultActivity extends AppCompatActivity {
             if(progressDialog!=null){
                 progressDialog.hideProgressDialog();
             }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack();
         }
     }
 
