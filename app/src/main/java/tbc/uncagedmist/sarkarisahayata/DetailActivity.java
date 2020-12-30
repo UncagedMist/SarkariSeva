@@ -2,13 +2,13 @@ package tbc.uncagedmist.sarkarisahayata;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,8 +30,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.special.ResideMenu.ResideMenu;
-import com.special.ResideMenu.ResideMenuItem;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,7 @@ import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
 import tbc.uncagedmist.sarkarisahayata.Model.Detail;
 import tbc.uncagedmist.sarkarisahayata.Service.IDetailsLoadListener;
 
-public class DetailActivity extends AppCompatActivity implements IDetailsLoadListener, View.OnClickListener {
+public class DetailActivity extends AppCompatActivity implements IDetailsLoadListener {
 
     AdView detailBanner, aboveBanner;
     RecyclerView recyclerDetail;
@@ -59,12 +58,6 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
     private InterstitialAd mInterstitialAd;
 
     CustomLoadDialog loadDialog;
-
-    private ResideMenu resideMenu;
-    private ResideMenuItem itemHome;
-    private ResideMenuItem itemAbout;
-    private ResideMenuItem itemPrivacy;
-    private ResideMenuItem itemSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,11 +86,10 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
         detailShare = findViewById(R.id.detailShare);
         aboveBanner = findViewById(R.id.detailAboveBanner);
 
-        TextView txtTitle = findViewById(R.id.txtTitle);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        txtTitle.setText(Common.CurrentService.getName());
-
-        setUpResideMenu();
+        getSupportActionBar().setTitle(Common.CurrentService.getName());
 
         AdRequest adRequest = new AdRequest.Builder().build();
 
@@ -200,6 +192,7 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
                     return;
                 }
                 loadInterstitial();
+                getSupportActionBar().setTitle(Common.CurrentService.getName());
                 getDetails();
             }
         });
@@ -261,79 +254,6 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
     public void onDetailLoadFailed(String message) {
         Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
     }
-
-    private void setUpResideMenu() {
-
-    resideMenu = new ResideMenu(this);
-//        resideMenu.setUse3D(true);
-    resideMenu.setBackground(R.drawable.menu_background);
-    resideMenu.attachToActivity(this);
-    resideMenu.setMenuListener(menuListener);
-
-    resideMenu.setScaleValue(0.6f);
-
-    itemHome     = new ResideMenuItem(this, R.drawable.icon_home,     "Home");
-    itemAbout  = new ResideMenuItem(this, R.drawable.icon_profile,  "About");
-    itemPrivacy = new ResideMenuItem(this, R.drawable.icon_profile, "Privacy");
-    itemSettings = new ResideMenuItem(this, R.drawable.icon_settings, "Settings");
-
-    itemHome.setOnClickListener(this);
-    itemAbout.setOnClickListener(this);
-    itemPrivacy.setOnClickListener(this);
-    itemSettings.setOnClickListener(this);
-
-    resideMenu.addMenuItem(itemHome, ResideMenu.DIRECTION_LEFT);
-    resideMenu.addMenuItem(itemAbout, ResideMenu.DIRECTION_LEFT);
-    resideMenu.addMenuItem(itemPrivacy, ResideMenu.DIRECTION_RIGHT);
-    resideMenu.addMenuItem(itemSettings, ResideMenu.DIRECTION_RIGHT);
-
-    findViewById(R.id.title_bar_left_menu).setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
-        }
-    });
-    findViewById(R.id.title_bar_right_menu).setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
-        }
-    });
-}
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        return resideMenu.dispatchTouchEvent(ev);
-    }
-
-    @Override
-    public void onClick(View view) {
-
-        if (view == itemHome){
-        }
-        else if (view == itemAbout){
-            startActivity(new Intent(DetailActivity.this,AboutActivity.class));
-        }
-        else if (view == itemPrivacy){
-            startActivity(new Intent(DetailActivity.this,PrivacyActivity.class));
-
-        }
-        else if (view == itemSettings){
-            startActivity(new Intent(DetailActivity.this,SettingActivity.class));
-        }
-
-        resideMenu.closeMenu();
-    }
-
-    private ResideMenu.OnMenuListener menuListener = new ResideMenu.OnMenuListener() {
-        @Override
-        public void openMenu() {
-        }
-
-        @Override
-        public void closeMenu() {
-        }
-    };
 
     @Override
     public void onDestroy() {

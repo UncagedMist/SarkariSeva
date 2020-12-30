@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebSettings;
@@ -13,6 +12,7 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialog;
 import com.bestsoft32.tt_fancy_gif_dialog_lib.TTFancyGifDialogListener;
@@ -21,30 +21,22 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.special.ResideMenu.ResideMenu;
-import com.special.ResideMenu.ResideMenuItem;
 
 import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
 import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
 import tbc.uncagedmist.sarkarisahayata.Helper.CustomProgressDialog;
 
-public class ResultActivity extends AppCompatActivity implements View.OnClickListener {
+public class ResultActivity extends AppCompatActivity {
 
     AdView resultBanner,aboveBanner;
     WebView webView;
-    FloatingActionButton resultShare;
+    FloatingActionButton resultShare,resultBack;
 
     NoInternetDialog noInternetDialog;
 
     CustomLoadDialog loadDialog;
     CustomProgressDialog progressDialog;
-
-    private ResideMenu resideMenu;
-    private ResideMenuItem itemHome;
-    private ResideMenuItem itemAbout;
-    private ResideMenuItem itemPrivacy;
-    private ResideMenuItem itemSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +56,12 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
 
         resultShare = findViewById(R.id.resultShare);
 
-        TextView txtTitle = findViewById(R.id.txtTitle);
+        resultBack = findViewById(R.id.resultBack);
 
-        txtTitle.setText(Common.CurrentDetail.getName());
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        setUpResideMenu();
+        getSupportActionBar().setTitle(Common.CurrentDetail.getName());
 
         AdRequest adRequest = new AdRequest.Builder().build();
 
@@ -87,6 +80,14 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
                 String message = "Never Miss A Sarkari Update. Install Sarkari Sahayata and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkarisahayata";
                 intent.putExtra(Intent.EXTRA_TEXT, message);
                 startActivity(Intent.createChooser(intent, "Share Sarkari Sahayata Using"));
+            }
+        });
+
+        resultBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(ResultActivity.this,DetailActivity.class));
+                finish();
             }
         });
 
@@ -235,79 +236,6 @@ public class ResultActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
     }
-
-    private void setUpResideMenu() {
-
-        resideMenu = new ResideMenu(this);
-//        resideMenu.setUse3D(true);
-        resideMenu.setBackground(R.drawable.menu_background);
-        resideMenu.attachToActivity(this);
-        resideMenu.setMenuListener(menuListener);
-
-        resideMenu.setScaleValue(0.6f);
-
-        itemHome     = new ResideMenuItem(this, R.drawable.icon_home,     "Home");
-        itemAbout  = new ResideMenuItem(this, R.drawable.icon_profile,  "About");
-        itemPrivacy = new ResideMenuItem(this, R.drawable.icon_profile, "Privacy");
-        itemSettings = new ResideMenuItem(this, R.drawable.icon_settings, "Settings");
-
-        itemHome.setOnClickListener(this);
-        itemAbout.setOnClickListener(this);
-        itemPrivacy.setOnClickListener(this);
-        itemSettings.setOnClickListener(this);
-
-        resideMenu.addMenuItem(itemHome, ResideMenu.DIRECTION_LEFT);
-        resideMenu.addMenuItem(itemAbout, ResideMenu.DIRECTION_LEFT);
-        resideMenu.addMenuItem(itemPrivacy, ResideMenu.DIRECTION_RIGHT);
-        resideMenu.addMenuItem(itemSettings, ResideMenu.DIRECTION_RIGHT);
-
-        findViewById(R.id.title_bar_left_menu).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                resideMenu.openMenu(ResideMenu.DIRECTION_LEFT);
-            }
-        });
-        findViewById(R.id.title_bar_right_menu).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                resideMenu.openMenu(ResideMenu.DIRECTION_RIGHT);
-            }
-        });
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        return resideMenu.dispatchTouchEvent(ev);
-    }
-
-    @Override
-    public void onClick(View view) {
-
-        if (view == itemHome){
-        }
-        else if (view == itemAbout){
-            startActivity(new Intent(ResultActivity.this,AboutActivity.class));
-        }
-        else if (view == itemPrivacy){
-            startActivity(new Intent(ResultActivity.this,PrivacyActivity.class));
-
-        }
-        else if (view == itemSettings){
-            startActivity(new Intent(ResultActivity.this,SettingActivity.class));
-        }
-
-        resideMenu.closeMenu();
-    }
-
-    private ResideMenu.OnMenuListener menuListener = new ResideMenu.OnMenuListener() {
-        @Override
-        public void openMenu() {
-        }
-
-        @Override
-        public void closeMenu() {
-        }
-    };
 
     @Override
     public void onDestroy() {

@@ -1,32 +1,32 @@
 <resources>
-  <string name="app_name">Sarkari Sahayata</string>
+    <string name="app_name">Sarkari Sahayata</string>
 
-  <string name="APP_ID">ca-app-pub-5860770870597755~3016203128</string>
+    <string name="APP_ID">ca-app-pub-5860770870597755~3016203128</string>
 
-  <string name="BANNER_Detail">ca-app-pub-5860770870597755/7659167476</string>
-  <string name="BANNER_Detail_Bottom">ca-app-pub-5860770870597755/3719922465</string>
+    <string name="BANNER_Detail">ca-app-pub-5860770870597755/7659167476</string>
+    <string name="BANNER_Detail_Bottom">ca-app-pub-5860770870597755/3719922465</string>
 
-  <string name="BANNER_Main">ca-app-pub-5860770870597755/8780677457</string>
-  <string name="BANNER_Main_Bottom">ca-app-pub-5860770870597755/6154514115</string>
+    <string name="BANNER_Main">ca-app-pub-5860770870597755/8780677457</string>
+    <string name="BANNER_Main_Bottom">ca-app-pub-5860770870597755/6154514115</string>
 
-  <string name="BANNER_Privacy">ca-app-pub-5860770870597755/2487071154</string>
-  <string name="BANNER_Privacy_Bottom">ca-app-pub-5860770870597755/4988772106</string>
+    <string name="BANNER_Privacy">ca-app-pub-5860770870597755/2487071154</string>
+    <string name="BANNER_Privacy_Bottom">ca-app-pub-5860770870597755/4988772106</string>
 
-  <string name="BANNER_Products">ca-app-pub-5860770870597755/9722046424</string>
-  <string name="BANNER_Products_Bottom">ca-app-pub-5860770870597755/1173989489</string>
+    <string name="BANNER_Products">ca-app-pub-5860770870597755/9722046424</string>
+    <string name="BANNER_Products_Bottom">ca-app-pub-5860770870597755/1173989489</string>
 
-  <string name="BANNER_Result">ca-app-pub-5860770870597755/1843556404</string>
-  <string name="BANNER_Result_Bottom">ca-app-pub-5860770870597755/6904311394</string>
+    <string name="BANNER_Result">ca-app-pub-5860770870597755/1843556404</string>
+    <string name="BANNER_Result_Bottom">ca-app-pub-5860770870597755/6904311394</string>
 
-  <string name="BANNER_Setting">ca-app-pub-5860770870597755/6918954962</string>
-  <string name="BANNER_Setting_Bottom">ca-app-pub-5860770870597755/8646969602</string>
+    <string name="BANNER_Setting">ca-app-pub-5860770870597755/6918954962</string>
+    <string name="BANNER_Setting_Bottom">ca-app-pub-5860770870597755/8646969602</string>
 
+    <string name="ONE_SIGNAL_APP_ID">569cd8ff-d1ee-4c27-9305-a766dfb65ca3</string>
 
-
-  <string name="ONE_SIGNAL_APP_ID">569cd8ff-d1ee-4c27-9305-a766dfb65ca3</string>
-
-  <string name="identity">Get All the Information about \n your Personal Identification Card \n Like : Aadhaar Card, Pan Card, \n Voter ID etc...</string>
-  <string name="services">It notifies you about \n all the Current and Upcoming \n Job, Government Services etc..</string>
-  <string name="updated">Always stay Updated without \n lacking any Benefits.</string>
+    <string name="identity">Get All the Information about \n your Personal Identification Card \n Like : Aadhaar Card, Pan Card, \n Voter ID etc...</string>
+    <string name="services">It notifies you about \n all the Current and Upcoming \n Job, Government Services etc..</string>
+    <string name="updated">Always stay Updated without \n lacking any Benefits.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

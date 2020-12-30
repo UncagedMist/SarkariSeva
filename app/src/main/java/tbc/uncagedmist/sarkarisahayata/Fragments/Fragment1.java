@@ -16,7 +16,6 @@ import com.airbnb.lottie.LottieAnimationView;
 
 import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.MainActivity;
-import tbc.uncagedmist.sarkarisahayata.PrivacyActivity;
 import tbc.uncagedmist.sarkarisahayata.R;
 
 public class Fragment1 extends Fragment {
