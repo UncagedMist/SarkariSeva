@@ -16,6 +16,10 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.reward.RewardItem;
+import com.google.android.gms.ads.reward.RewardedVideoAd;
+import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -39,7 +43,7 @@ import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
 import tbc.uncagedmist.sarkarisahayata.Model.Service;
 import tbc.uncagedmist.sarkarisahayata.Service.IAllProductLoadListener;
 
-public class ProductsActivity extends AppCompatActivity implements IAllProductLoadListener {
+public class ProductsActivity extends AppCompatActivity implements IAllProductLoadListener, RewardedVideoAdListener {
 
     AdView productBanner,aboveBanner;
     RecyclerView recyclerService;
@@ -53,6 +57,8 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
 
     NoInternetDialog noInternetDialog;
 
+    private RewardedVideoAd mRewardedVideoAd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +67,7 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
         loadDialog = new CustomLoadDialog(this);
 
         noInternetDialog = new NoInternetDialog.Builder(ProductsActivity.this).build();
-
+        
         recyclerService = findViewById(R.id.recycler_service);
         productBanner = findViewById(R.id.productBanner);
         productShare = findViewById(R.id.productShare);
@@ -72,7 +78,13 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
 
         getSupportActionBar().setTitle(Common.CurrentProduct.getName());
 
+        mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
+
+        mRewardedVideoAd.setRewardedVideoAdListener(this);
+
         AdRequest adRequest = new AdRequest.Builder().build();
+
+        loadRewardedVideoAd();
 
         productBanner.loadAd(adRequest);
         aboveBanner.loadAd(adRequest);
@@ -177,6 +189,11 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
 
     }
 
+    private void loadRewardedVideoAd() {
+        mRewardedVideoAd.loadAd("ca-app-pub-5860770870597755/247721168613",
+                new AdRequest.Builder().build());
+    }
+
     private void getAllProducts() {
         loadDialog.showDialog();
         refAllProducts = FirebaseFirestore.getInstance()
@@ -212,6 +229,44 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
                 });
     }
 
+    @Override
+    public void onRewarded(RewardItem reward) {
+    }
+
+    @Override
+    public void onRewardedVideoAdLeftApplication() {
+    }
+
+    @Override
+    public void onRewardedVideoAdClosed() {
+        loadRewardedVideoAd();
+    }
+
+    @Override
+    public void onRewardedVideoAdFailedToLoad(int errorCode) {
+        if (mRewardedVideoAd.isLoaded()) {
+            mRewardedVideoAd.show();
+        }
+    }
+
+    @Override
+    public void onRewardedVideoAdLoaded() {
+        if (mRewardedVideoAd.isLoaded()) {
+            mRewardedVideoAd.show();
+        }
+    }
+
+    @Override
+    public void onRewardedVideoAdOpened() {
+    }
+
+    @Override
+    public void onRewardedVideoStarted() {
+    }
+
+    @Override
+    public void onRewardedVideoCompleted() {
+    }
 
     @Override
     public void onAllProductLoadSuccess(List<Service> allProductList) {
@@ -227,7 +282,20 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
     }
 
     @Override
+    public void onResume() {
+        mRewardedVideoAd.resume(this);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        mRewardedVideoAd.pause(this);
+        super.onPause();
+    }
+
+    @Override
     public void onDestroy() {
+        mRewardedVideoAd.destroy(this);
         super.onDestroy();
         noInternetDialog.onDestroy();
     }
