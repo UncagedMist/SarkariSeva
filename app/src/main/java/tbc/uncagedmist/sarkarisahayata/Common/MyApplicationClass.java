@@ -7,17 +7,15 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
+import com.adcolony.sdk.AdColony;
+import com.adcolony.sdk.AdColonyAppOptions;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.onesignal.OneSignal;
 
 import tbc.uncagedmist.sarkarisahayata.AdUtility.AppOpenManager;
 import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
-import tbc.uncagedmist.sarkarisahayata.Service.SarkariNotificationOpenedHandler;
-import tbc.uncagedmist.sarkarisahayata.Service.SarkariNotificationReceivedHandler;
 
 public class MyApplicationClass extends Application {
 
@@ -32,11 +30,17 @@ public class MyApplicationClass extends Application {
   public static Activity mActivity;
   NetworkStatusReceiver mNetworkReceiver;
 
+  public static final String APP_ID = "app82631193d1fd4500b3";
+  public static final String ZONE_ID = "vz78896d09723c43cd81";
+
   @Override
   public void onCreate() {
     super.onCreate();
     context = getApplicationContext();
-    MobileAds.initialize(this, "ca-app-pub-5860770870597755~3016203128");
+
+    AdColonyAppOptions appOptions = new AdColonyAppOptions();
+
+    AdColony.configure(this, appOptions, APP_ID, ZONE_ID);
 
     MobileAds.initialize(
             this,
@@ -46,13 +50,6 @@ public class MyApplicationClass extends Application {
             });
 
     appOpenManager = new AppOpenManager(this);
-
-    OneSignal.startInit(this)
-            .setNotificationReceivedHandler(new SarkariNotificationReceivedHandler())
-            .setNotificationOpenedHandler(new SarkariNotificationOpenedHandler())
-            .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
-            .unsubscribeWhenNotificationsAreDisabled(true)
-            .init();
 
     registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
       @Override

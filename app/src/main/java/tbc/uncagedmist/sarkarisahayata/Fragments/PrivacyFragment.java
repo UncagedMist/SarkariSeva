@@ -19,7 +19,6 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
 import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
 import tbc.uncagedmist.sarkarisahayata.Helper.CustomProgressDialog;
@@ -35,8 +34,6 @@ public class PrivacyFragment extends Fragment {
 
     FloatingActionButton privacyShare;
 
-    NoInternetDialog noInternetDialog;
-
     CustomLoadDialog loadDialog;
     CustomProgressDialog progressDialog;
 
@@ -50,8 +47,6 @@ public class PrivacyFragment extends Fragment {
         progressDialog = new CustomProgressDialog(getContext());
 
         loadDialog.showDialog();
-
-        noInternetDialog = new NoInternetDialog.Builder(getContext()).build();
 
         webView = myFragment.findViewById(R.id.webPrivacy);
         privacyBanner = myFragment.findViewById(R.id.privacyBanner);
@@ -109,11 +104,6 @@ public class PrivacyFragment extends Fragment {
             }
 
             @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
             public void onAdClosed() {
                 // Code to be executed when the user is about to return
                 // to the app after tapping on an ad.
@@ -140,11 +130,6 @@ public class PrivacyFragment extends Fragment {
             @Override
             public void onAdClicked() {
                 // Code to be executed when the user clicks on an ad.
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
             }
 
             @Override
@@ -178,11 +163,5 @@ public class PrivacyFragment extends Fragment {
                 progressDialog.hideProgressDialog();
             }
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        noInternetDialog.onDestroy();
     }
 }

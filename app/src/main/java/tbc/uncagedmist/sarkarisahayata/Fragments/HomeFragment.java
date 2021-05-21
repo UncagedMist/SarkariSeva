@@ -13,13 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LayoutAnimationController;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -34,10 +32,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ProductAdapter;
 import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
-import tbc.uncagedmist.sarkarisahayata.MainActivity;
 import tbc.uncagedmist.sarkarisahayata.Model.Product;
 import tbc.uncagedmist.sarkarisahayata.R;
 import tbc.uncagedmist.sarkarisahayata.Service.IProductLoadListener;
@@ -48,6 +44,8 @@ public class HomeFragment extends Fragment implements IProductLoadListener {
 
     AdView mainBanner,aboveBanner;
 
+    private static HomeFragment INSTANCE = null;
+
     RecyclerView recyclerView;
     FloatingActionButton mainShare;
 
@@ -55,9 +53,15 @@ public class HomeFragment extends Fragment implements IProductLoadListener {
 
     IProductLoadListener iProductLoadListener;
 
-    NoInternetDialog noInternetDialog;
-
     CustomLoadDialog loadDialog;
+
+    public static HomeFragment getInstance()    {
+
+        if (INSTANCE == null)   {
+            INSTANCE = new HomeFragment();
+        }
+        return INSTANCE;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,18 +70,12 @@ public class HomeFragment extends Fragment implements IProductLoadListener {
 
         loadDialog = new CustomLoadDialog(getContext());
 
-        noInternetDialog = new NoInternetDialog.Builder(getContext()).build();
-
         refProducts = FirebaseFirestore.getInstance().collection("Sarkari");
 
         mainBanner = myFragment.findViewById(R.id.mainBanner);
         aboveBanner = myFragment.findViewById(R.id.mainAboveBanner);
         recyclerView = myFragment.findViewById(R.id.recyclerView);
         mainShare = myFragment.findViewById(R.id.mainShare);
-
-        LayoutAnimationController controller = AnimationUtils.loadLayoutAnimation(getContext(),
-                R.anim.layout_fall_down);
-        recyclerView.setLayoutAnimation(controller);
 
         AdRequest adRequest = new AdRequest.Builder().build();
 
@@ -121,11 +119,6 @@ public class HomeFragment extends Fragment implements IProductLoadListener {
             }
 
             @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
             public void onAdClosed() {
                 // Code to be executed when the user is about to return
                 // to the app after tapping on an ad.
@@ -152,11 +145,6 @@ public class HomeFragment extends Fragment implements IProductLoadListener {
             @Override
             public void onAdClicked() {
                 // Code to be executed when the user clicks on an ad.
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
             }
 
             @Override
@@ -207,11 +195,5 @@ public class HomeFragment extends Fragment implements IProductLoadListener {
     @Override
     public void onProductLoadFailed(String message) {
         Toast.makeText(getContext(), ""+message, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        noInternetDialog.onDestroy();
     }
 }

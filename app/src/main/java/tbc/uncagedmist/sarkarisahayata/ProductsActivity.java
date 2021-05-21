@@ -6,20 +6,24 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.reward.RewardItem;
-import com.google.android.gms.ads.reward.RewardedVideoAd;
-import com.google.android.gms.ads.reward.RewardedVideoAdListener;
+import com.google.android.gms.ads.OnUserEarnedRewardListener;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -36,14 +40,14 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.ServiceAdapter;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
 import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
 import tbc.uncagedmist.sarkarisahayata.Model.Service;
 import tbc.uncagedmist.sarkarisahayata.Service.IAllProductLoadListener;
 
-public class ProductsActivity extends AppCompatActivity implements IAllProductLoadListener, RewardedVideoAdListener {
+public class ProductsActivity extends AppCompatActivity
+        implements IAllProductLoadListener {
 
     AdView productBanner,aboveBanner;
     RecyclerView recyclerService;
@@ -55,9 +59,7 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
 
     CustomLoadDialog loadDialog;
 
-    NoInternetDialog noInternetDialog;
-
-    private RewardedVideoAd mRewardedVideoAd;
+    private RewardedAd mRewardedAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,8 +68,6 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
 
         loadDialog = new CustomLoadDialog(this);
 
-        noInternetDialog = new NoInternetDialog.Builder(ProductsActivity.this).build();
-        
         recyclerService = findViewById(R.id.recycler_service);
         productBanner = findViewById(R.id.productBanner);
         productShare = findViewById(R.id.productShare);
@@ -76,13 +76,43 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setTitle(Common.CurrentProduct.getName());
-
-        mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
-
-        mRewardedVideoAd.setRewardedVideoAdListener(this);
-
         AdRequest adRequest = new AdRequest.Builder().build();
+
+        RewardedAd.load(this, "ca-app-pub-5860770870597755/62600193060",
+                adRequest, new RewardedAdLoadCallback(){
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error.
+                        Log.d("TAG", loadAdError.getMessage());
+                        mRewardedAd = null;
+                    }
+
+                    @Override
+                    public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
+                        mRewardedAd = rewardedAd;
+                        mRewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                // Called when ad is shown.
+                                mRewardedAd = null;
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                // Called when ad fails to show.
+                            }
+
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                // Called when ad is dismissed.
+                                // Don't forget to set the ad reference to null so you
+                                // don't show the ad a second time.
+                            }
+                        });
+                    }
+                });
+
+        getSupportActionBar().setTitle(Common.CurrentProduct.getName());
 
         loadRewardedVideoAd();
 
@@ -126,10 +156,6 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
                 // Code to be executed when the user clicks on an ad.
             }
 
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
 
             @Override
             public void onAdClosed() {
@@ -161,11 +187,6 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
             }
 
             @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
             public void onAdClosed() {
                 // Code to be executed when the user is about to return
                 // to the app after tapping on an ad.
@@ -190,8 +211,18 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
     }
 
     private void loadRewardedVideoAd() {
-        mRewardedVideoAd.loadAd("ca-app-pub-5860770870597755/247721168613",
-                new AdRequest.Builder().build());
+        if (mRewardedAd != null) {
+            Activity activityContext = ProductsActivity.this;
+            mRewardedAd.show(activityContext, new OnUserEarnedRewardListener() {
+                @Override
+                public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+                    // Handle the reward.
+                }
+            });
+        }
+        else {
+            Log.d("TAG", "loadRewardedVideoAd: Ad Not Loaded");
+        }
     }
 
     private void getAllProducts() {
@@ -230,45 +261,6 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
     }
 
     @Override
-    public void onRewarded(RewardItem reward) {
-    }
-
-    @Override
-    public void onRewardedVideoAdLeftApplication() {
-    }
-
-    @Override
-    public void onRewardedVideoAdClosed() {
-        loadRewardedVideoAd();
-    }
-
-    @Override
-    public void onRewardedVideoAdFailedToLoad(int errorCode) {
-        if (mRewardedVideoAd.isLoaded()) {
-            mRewardedVideoAd.show();
-        }
-    }
-
-    @Override
-    public void onRewardedVideoAdLoaded() {
-        if (mRewardedVideoAd.isLoaded()) {
-            mRewardedVideoAd.show();
-        }
-    }
-
-    @Override
-    public void onRewardedVideoAdOpened() {
-    }
-
-    @Override
-    public void onRewardedVideoStarted() {
-    }
-
-    @Override
-    public void onRewardedVideoCompleted() {
-    }
-
-    @Override
     public void onAllProductLoadSuccess(List<Service> allProductList) {
         recyclerService.setHasFixedSize(true);
         recyclerService.setLayoutManager(new GridLayoutManager(this,2));
@@ -279,24 +271,5 @@ public class ProductsActivity extends AppCompatActivity implements IAllProductLo
     @Override
     public void onAllProductLoadFailed(String message) {
         Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onResume() {
-        mRewardedVideoAd.resume(this);
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        mRewardedVideoAd.pause(this);
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        mRewardedVideoAd.destroy(this);
-        super.onDestroy();
-        noInternetDialog.onDestroy();
     }
 }

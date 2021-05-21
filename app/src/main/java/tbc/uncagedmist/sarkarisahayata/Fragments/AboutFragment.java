@@ -11,9 +11,7 @@ import android.view.ViewGroup;
 
 import com.shashank.sony.fancyaboutpagelib.FancyAboutPage;
 
-import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.R;
-
 
 public class AboutFragment extends Fragment {
 
@@ -21,14 +19,11 @@ public class AboutFragment extends Fragment {
 
     FancyAboutPage aboutPage;
     String version;
-    NoInternetDialog noInternetDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         myFragment = inflater.inflate(R.layout.fragment_about, container, false);
-
-        noInternetDialog = new NoInternetDialog.Builder(getContext()).build();
 
         aboutPage = myFragment.findViewById(R.id.aboutPage);
         aboutPage.setCover(R.drawable.coverimg);
@@ -59,11 +54,5 @@ public class AboutFragment extends Fragment {
         aboutPage.addGitHubLink("https://github.com/UncagedMist");
 
         return myFragment;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        noInternetDialog.onDestroy();
     }
 }

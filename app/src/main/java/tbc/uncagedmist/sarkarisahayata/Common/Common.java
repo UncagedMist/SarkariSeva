@@ -9,18 +9,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
-
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import tbc.uncagedmist.sarkarisahayata.Model.Detail;
 import tbc.uncagedmist.sarkarisahayata.Model.Product;
 import tbc.uncagedmist.sarkarisahayata.Model.Service;
 import tbc.uncagedmist.sarkarisahayata.R;
-import tbc.uncagedmist.sarkarisahayata.Service.MyFCMService;
 
 public class Common {
 
@@ -75,6 +73,25 @@ public class Common {
 
   }
 
-  public static void updateToken(Context context, String newToken) {
+  public static boolean isConnectedToInternet(Context context)    {
+
+    ConnectivityManager connectivityManager = (
+            ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+    if (connectivityManager != null)    {
+
+      NetworkInfo[] info = connectivityManager.getAllNetworkInfo();
+
+      if (info != null)   {
+
+        for (int i = 0; i <info.length;i++)   {
+
+          if (info[i].getState() == NetworkInfo.State.CONNECTED)  {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 }

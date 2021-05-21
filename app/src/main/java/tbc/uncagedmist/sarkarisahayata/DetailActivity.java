@@ -8,15 +8,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -35,7 +32,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-import am.appwise.components.ni.NoInternetDialog;
 import tbc.uncagedmist.sarkarisahayata.Adapter.DetailAdapter;
 import tbc.uncagedmist.sarkarisahayata.Common.Common;
 import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
@@ -53,9 +49,6 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
 
     IDetailsLoadListener iDetailsLoadListener;
 
-    NoInternetDialog noInternetDialog;
-
-    private InterstitialAd mInterstitialAd;
 
     CustomLoadDialog loadDialog;
 
@@ -65,21 +58,6 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
         setContentView(R.layout.activity_detail);
 
         loadDialog = new CustomLoadDialog(this);
-
-        noInternetDialog = new NoInternetDialog.Builder(DetailActivity.this).build();
-
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-5860770870597755/3145207391");
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
-
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdClosed() {
-                // Load the next interstitial.
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
-            }
-
-        });
 
         recyclerDetail = findViewById(R.id.recycler_detail);
         detailBanner = findViewById(R.id.detailBanner);
@@ -107,7 +85,6 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
             }
         });
 
-        loadInterstitial();
         getDetails();
 
         iDetailsLoadListener = this;
@@ -135,11 +112,6 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
             }
 
             @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
             public void onAdClosed() {
                 // Code to be executed when the user is about to return
                 // to the app after tapping on an ad.
@@ -169,11 +141,6 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
             }
 
             @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-            }
-
-            @Override
             public void onAdClosed() {
                 // Code to be executed when the user is about to return
                 // to the app after tapping on an ad.
@@ -191,19 +158,10 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
                 if (error != null)  {
                     return;
                 }
-                loadInterstitial();
                 getSupportActionBar().setTitle(Common.CurrentService.getName());
                 getDetails();
             }
         });
-    }
-
-    private void loadInterstitial() {
-        if (mInterstitialAd.isLoaded()) {
-            mInterstitialAd.show();
-        } else {
-            Log.d("TAG", "The interstitial wasn't loaded yet.");
-        }
     }
 
     private void getDetails() {
@@ -253,11 +211,5 @@ public class DetailActivity extends AppCompatActivity implements IDetailsLoadLis
     @Override
     public void onDetailLoadFailed(String message) {
         Toast.makeText(this, ""+message, Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        noInternetDialog.onDestroy();
     }
 }
