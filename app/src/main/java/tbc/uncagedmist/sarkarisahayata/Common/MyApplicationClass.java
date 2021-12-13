@@ -1,5 +1,6 @@
 package tbc.uncagedmist.sarkarisahayata.Common;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -8,8 +9,7 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.adcolony.sdk.AdColony;
-import com.adcolony.sdk.AdColonyAppOptions;
+import com.facebook.ads.AudienceNetworkAds;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
@@ -19,37 +19,32 @@ import tbc.uncagedmist.sarkarisahayata.Service.NetworkStatusReceiver;
 
 public class MyApplicationClass extends Application {
 
-  private static Context context;
-
-  private static AppOpenManager appOpenManager;
-
-  public static Context getContext() {
-    return context;
-  }
-
+  @SuppressLint("StaticFieldLeak")
   public static Activity mActivity;
   NetworkStatusReceiver mNetworkReceiver;
 
-  public static final String APP_ID = "app82631193d1fd4500b3";
-  public static final String ZONE_ID = "vz78896d09723c43cd81";
+  @SuppressLint("StaticFieldLeak")
+  private static AppOpenManager appOpenManager;
+
+  private static MyApplicationClass instance;
+
+  private boolean showAds = true;
 
   @Override
   public void onCreate() {
     super.onCreate();
-    context = getApplicationContext();
+    instance = this;
 
-    AdColonyAppOptions appOptions = new AdColonyAppOptions();
+    AudienceNetworkAds.initialize(instance);
 
-    AdColony.configure(this, appOptions, APP_ID, ZONE_ID);
+    MobileAds.initialize(this, new OnInitializationCompleteListener() {
+      @Override
+      public void onInitializationComplete(InitializationStatus initializationStatus) { }
+    });
 
-    MobileAds.initialize(
-            this,
-            new OnInitializationCompleteListener() {
-              @Override
-              public void onInitializationComplete(InitializationStatus initializationStatus) {}
-            });
-
-    appOpenManager = new AppOpenManager(this);
+    if (showAds)    {
+      appOpenManager = new AppOpenManager(instance);
+    }
 
     registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
       @Override
@@ -76,21 +71,37 @@ public class MyApplicationClass extends Application {
 
       @Override
       public void onActivityStopped(Activity activity) {
+
       }
 
       @Override
       public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+
       }
 
       @Override
       public void onActivityDestroyed(Activity activity) {
+
       }
     });
   }
 
+  @SuppressLint("ObsoleteSdkInt")
   private void registerNetworkBroadcastForLollipop() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
       registerReceiver(mNetworkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
+  }
+
+  public static MyApplicationClass getInstance() {
+    return instance;
+  }
+
+  public boolean isShowAds() {
+    return showAds;
+  }
+
+  public void setShowAds(boolean showAds) {
+    this.showAds = showAds;
   }
 }

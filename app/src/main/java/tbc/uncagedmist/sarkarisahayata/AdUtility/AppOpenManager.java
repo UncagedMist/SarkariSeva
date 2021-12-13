@@ -17,14 +17,15 @@ import com.google.android.gms.ads.appopen.AppOpenAd;
 
 import java.util.Date;
 
-import tbc.uncagedmist.sarkarisahayata.Common.MyApplicationClass;
-
 import static androidx.lifecycle.Lifecycle.Event.ON_START;
 
-public class AppOpenManager implements LifecycleObserver,Application.ActivityLifecycleCallbacks {
+import tbc.uncagedmist.sarkarisahayata.Common.MyApplicationClass;
+import tbc.uncagedmist.sarkarisahayata.R;
+
+public class AppOpenManager implements LifecycleObserver, Application.ActivityLifecycleCallbacks {
 
     private static final String LOG_TAG = "AppOpenManager";
-    private static final String AD_UNIT_ID = "ca-app-pub-5860770870597755/5377348328";
+
     private AppOpenAd appOpenAd = null;
 
     private AppOpenAd.AppOpenAdLoadCallback loadCallback;
@@ -52,6 +53,11 @@ public class AppOpenManager implements LifecycleObserver,Application.ActivityLif
 
         loadCallback =
                 new AppOpenAd.AppOpenAdLoadCallback() {
+                    /**
+                     * Called when an app open ad has loaded.
+                     *
+                     * @param ad the loaded app open ad.
+                     */
                     @Override
                     public void onAdLoaded(AppOpenAd ad) {
                         AppOpenManager.this.appOpenAd = ad;
@@ -66,7 +72,9 @@ public class AppOpenManager implements LifecycleObserver,Application.ActivityLif
                 };
         AdRequest request = getAdRequest();
         AppOpenAd.load(
-                myApplication, AD_UNIT_ID, request,
+                myApplication,
+                currentActivity.getString(R.string.AppOpen),
+                request,
                 AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT, loadCallback);
     }
 

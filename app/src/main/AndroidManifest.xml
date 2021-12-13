@@ -13,36 +13,26 @@
         android:name=".Common.MyApplicationClass"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_logo"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:roundIcon="@mipmap/ic_logo"
+        android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true"
-        tools:replace="android:theme">
-
-        <activity android:name=".SettingActivity"
-            android:screenOrientation="portrait"/>
+        android:theme="@style/AppTheme.NoActionBar"
+        android:usesCleartextTraffic="true">
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/APP_ID" />
 
-        <activity android:name=".ResultActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".DetailActivity"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".ProductsActivity"
-            android:screenOrientation="portrait"/>
 
         <activity android:name=".MainActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:exported="true"/>
 
         <activity android:name=".SplashActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -50,7 +40,8 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".Service.NetworkStatusReceiver">
+        <receiver android:name=".Service.NetworkStatusReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>

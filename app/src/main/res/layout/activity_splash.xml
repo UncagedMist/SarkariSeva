@@ -1,45 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SplashActivity"
-    android:background="@drawable/bgback">
+    tools:context=".SplashActivity">
 
     <ImageView
-        android:id="@+id/image"
-        android:layout_centerInParent="true"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:src="@mipmap/ic_logo"/>
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/top_background1" />
 
     <TextView
-        android:layout_below="@id/image"
-        android:textStyle="bold|italic"
-        android:textSize="25sp"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:text="Get All Sarkari Seva \n At One Place."
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <com.ncorti.slidetoact.SlideToActView
-        android:id="@+id/btnContinue"
-        android:layout_width="match_parent"
+        android:id="@+id/textView"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:text="Slide to Continue"
-        app:text_size="23dp"
-        app:text_style="bold"
-        app:text_color="@color/colorWhite"
-        android:layout_margin="8dp"
-        android:padding="8dp"
-        android:elevation="10dp"
-        app:area_margin="10dp"
-        app:inner_color="#2196f3"
-        app:outer_color="@drawable/bg"/>
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="32dp"
+        android:text="Welcome \n To Electricity  \n  Bill Payments."
+        android:textColor="#000000"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
-</RelativeLayout>
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Check and Pay for your Electricity Bill of yours Electricity Board."
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/imgStart"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintVertical_bias="0.17" />
+
+    <ImageView
+        android:id="@+id/imgStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/intro_backgroung_bottom" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

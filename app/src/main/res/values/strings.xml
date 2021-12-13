@@ -1,12 +1,11 @@
 <resources>
-    <string name="app_name">Sarkari Sahayata</string>
+    <string name="app_name">Bijli Bill</string>
 
-    <string name="APP_ID">ca-app-pub-5860770870597755~3016203128</string>
+    <string name="APP_ID">ca-app-pub-7920815986886474~5642992812</string>
 
-    <string name="BannerID">ca-app-pub-5860770870597755/6882001684</string>
-    <string name="Fullscreen">ca-app-pub-5860770870597755/2942756676</string>
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="AppOpen">ca-app-pub-7920815986886474/8070931716</string>
+    <string name="BannerID">ca-app-pub-7920815986886474/6189787724</string>
+    <string name="Fullscreen">ca-app-pub-7920815986886474/2058971028</string>
+    <string name="Native">ca-app-pub-7920815986886474/5897956296</string>
 
 </resources>

@@ -1,59 +1,38 @@
 package tbc.uncagedmist.sarkarisahayata.Fragments;
 
-import android.content.Intent;
+import android.app.Activity;
+import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
-import android.widget.Toast;
-
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import android.widget.EditText;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import tbc.uncagedmist.sarkarisahayata.Adapter.ProductAdapter;
-import tbc.uncagedmist.sarkarisahayata.Helper.CustomLoadDialog;
-import tbc.uncagedmist.sarkarisahayata.Model.Product;
+import tbc.uncagedmist.sarkarisahayata.Adapter.StateAdapter;
+import tbc.uncagedmist.sarkarisahayata.Database.MyDatabase;
+import tbc.uncagedmist.sarkarisahayata.Model.State;
 import tbc.uncagedmist.sarkarisahayata.R;
-import tbc.uncagedmist.sarkarisahayata.Service.IProductLoadListener;
 
-public class HomeFragment extends Fragment implements IProductLoadListener {
-
-    View myFragment;
-
-    AdView mainBanner,aboveBanner;
-
-    private static HomeFragment INSTANCE = null;
+public class HomeFragment extends Fragment {
 
     RecyclerView recyclerView;
-    FloatingActionButton mainShare;
+    ArrayList<State> stateArrayList = new ArrayList<>();
+    EditText edtState;
 
-    CollectionReference refProducts;
+    Context context;
 
-    IProductLoadListener iProductLoadListener;
-
-    CustomLoadDialog loadDialog;
+    private static HomeFragment INSTANCE = null;
 
     public static HomeFragment getInstance()    {
 
@@ -64,136 +43,81 @@ public class HomeFragment extends Fragment implements IProductLoadListener {
     }
 
     @Override
+    public void onAttach(@NonNull Activity activity) {
+        super.onAttach(activity);
+        context = activity;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        myFragment = inflater.inflate(R.layout.fragment_home, container, false);
+        View myFragment = inflater.inflate(R.layout.fragment_home, container, false);
 
-        loadDialog = new CustomLoadDialog(getContext());
+        recyclerView = myFragment.findViewById(R.id.recyclerState);
+        edtState = myFragment.findViewById(R.id.edtStateName);
 
-        refProducts = FirebaseFirestore.getInstance().collection("Sarkari");
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mainBanner = myFragment.findViewById(R.id.mainBanner);
-        aboveBanner = myFragment.findViewById(R.id.mainAboveBanner);
-        recyclerView = myFragment.findViewById(R.id.recyclerView);
-        mainShare = myFragment.findViewById(R.id.mainShare);
-
-        AdRequest adRequest = new AdRequest.Builder().build();
-
-        mainBanner.loadAd(adRequest);
-        aboveBanner.loadAd(adRequest);
-
-        mainShare.setOnClickListener(new View.OnClickListener() {
+        edtState.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("text/plain");
-                String message = "Never Miss A Sarkari Update. Install Sarkari Sahayata and Stay Updated! \n https://play.google.com/store/apps/details?id=tbc.uncagedmist.sarkarisahayata";
-                intent.putExtra(Intent.EXTRA_TEXT, message);
-                startActivity(Intent.createChooser(intent, "Share Sarkari Sahayata Using"));
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                ArrayList<State> stateList = new ArrayList<>();
+
+                String edtStateName = edtState.getText().toString().trim();
+
+                for (State stateName : stateArrayList)   {
+                    if (stateName.getStateName().toLowerCase().contains(edtStateName.toLowerCase()))  {
+                        Cursor cursor = new MyDatabase(
+                                context).getStateByNames(edtStateName.toLowerCase());
+
+                        while (cursor.moveToNext()) {
+                            State state = new State(
+                                    cursor.getString(0),
+                                    cursor.getString(1),
+                                    cursor.getString(2),
+                                    cursor.getString(3),
+                                    cursor.getString(4)
+                            );
+                            stateList.add(state);
+                        }
+                    }
+
+                }
+
+                StateAdapter adapter = new StateAdapter(context, stateList);
+                recyclerView.setAdapter(adapter);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
             }
         });
 
-        iProductLoadListener = this;
-        loadProducts();
-
-        aboveBanner.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-            }
-
-            @Override
-            public void onAdFailedToLoad(LoadAdError adError) {
-                // Code to be executed when an ad request fails.
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when an ad opens an overlay that
-                // covers the screen.
-            }
-
-            @Override
-            public void onAdClicked() {
-                // Code to be executed when the user clicks on an ad.
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when the user is about to return
-                // to the app after tapping on an ad.
-            }
-        });
-
-        mainBanner.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-            }
-
-            @Override
-            public void onAdFailedToLoad(LoadAdError adError) {
-                // Code to be executed when an ad request fails.
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when an ad opens an overlay that
-                // covers the screen.
-            }
-
-            @Override
-            public void onAdClicked() {
-                // Code to be executed when the user clicks on an ad.
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when the user is about to return
-                // to the app after tapping on an ad.
-            }
-        });
+        getAllStateList();
 
         return myFragment;
     }
 
-    private void loadProducts() {
-        loadDialog.showDialog();
-        refProducts
-                .orderBy("name", Query.Direction.DESCENDING)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        List<Product> products = new ArrayList<>();
-                        if (task.isSuccessful())    {
-                            for (QueryDocumentSnapshot productSnapshot : task.getResult())  {
-                                Product product = productSnapshot.toObject(Product.class);
-                                product.setId(productSnapshot.getId());
-                                products.add(product);
-                            }
-                            iProductLoadListener.onProductLoadSuccess(products);
-                            loadDialog.hideDialog();
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                iProductLoadListener.onProductLoadFailed(e.getMessage());
-            }
-        });
-    }
+    private void getAllStateList() {
+        Cursor cursor = new MyDatabase(getContext()).getAllStateData();
 
-    @Override
-    public void onProductLoadSuccess(List<Product> products) {
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+        while (cursor.moveToNext()) {
+            State state = new State(
+                    cursor.getString(0),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4)
+            );
+            stateArrayList.add(state);
+        }
 
-        recyclerView.setAdapter(new ProductAdapter(getContext(),products));
-    }
+        StateAdapter adapter = new StateAdapter(context, stateArrayList);
 
-    @Override
-    public void onProductLoadFailed(String message) {
-        Toast.makeText(getContext(), ""+message, Toast.LENGTH_SHORT).show();
+        recyclerView.setAdapter(adapter);
     }
 }

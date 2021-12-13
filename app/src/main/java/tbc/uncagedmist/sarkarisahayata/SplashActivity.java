@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -17,15 +19,12 @@ import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.OnSuccessListener;
 import com.google.android.play.core.tasks.Task;
-import com.ncorti.slidetoact.SlideToActView;
-
-import tbc.uncagedmist.sarkarisahayata.Common.Common;
 
 public class SplashActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 5152;
 
-    SlideToActView btnContinue;
+    ImageView btnContinue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,21 +39,15 @@ public class SplashActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_splash);
 
-        btnContinue = findViewById(R.id.btnContinue);
+        btnContinue = findViewById(R.id.imgStart);
 
-        btnContinue.setOnSlideCompleteListener(new SlideToActView.OnSlideCompleteListener() {
-            @Override
-            public void onSlideComplete(SlideToActView slideToActView) {
-
-                if (Common.isConnectedToInternet(SplashActivity.this))  {
-                    startActivity(new Intent(SplashActivity.this,MainActivity.class));
-                    finish();
-                }
-                else    {
-                    Toast.makeText(SplashActivity.this, "Please Check your Internet Connection...", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+       btnContinue.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+               startActivity(new Intent(SplashActivity.this,MainActivity.class));
+               finish();
+           }
+       });
     }
 
     private void checkAppUpdate() {
